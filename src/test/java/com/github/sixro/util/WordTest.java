@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.util;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,8 @@ import java.io.*;
 
 import org.junit.*;
 
-import com.github.sixro.Word.NoSuchDocPropertyException;
+import com.github.sixro.util.Word;
+import com.github.sixro.util.Word.NoSuchDocPropertyException;
 
 public class WordTest {
 

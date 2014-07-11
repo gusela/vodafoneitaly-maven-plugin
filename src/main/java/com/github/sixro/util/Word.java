@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.util;
 
 import java.io.*;
 

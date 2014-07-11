@@ -7,7 +7,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.*;
 
-import com.github.sixro.Word.NoSuchDocPropertyException;
+import com.github.sixro.util.Word;
+import com.github.sixro.util.Word.NoSuchDocPropertyException;
 
 public class ReleaseNotesTest {
 

@@ -4,6 +4,8 @@ import java.io.*;
 
 import org.apache.maven.plugin.*;
 
+import com.github.sixro.util.Word;
+
 /**
  * Goal which touches a timestamp file.
  * 
@@ -57,8 +59,6 @@ public class PackageMojo extends AbstractMojo {
 	 */
 	private File releaseNotesTemplate;
 
-	private VodafoneCanvass vodafoneCanvass = new VodafoneCanvass();
-
 	public void execute() throws MojoExecutionException {
 		getLog().info("Packaging for Vodafone Canvass");
 		getLog().info("  Release Notes Template .......: " + releaseNotesTemplate);
@@ -66,7 +66,7 @@ public class PackageMojo extends AbstractMojo {
 		if (!outputDirectory.exists())
 			outputDirectory.mkdirs();
 
-		File releaseNotesFile = new File(outputDirectory, vodafoneCanvass.standardFileName(releaseNotesTemplate.getName(), system, version, date));
+		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, date));
 		if (releaseNotesFile.exists())
 			delete(releaseNotesFile);
 		

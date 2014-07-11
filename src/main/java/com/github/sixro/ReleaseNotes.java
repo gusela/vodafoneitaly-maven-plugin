@@ -2,7 +2,8 @@ package com.github.sixro;
 
 import java.io.*;
 
-import com.github.sixro.Word.NoSuchDocPropertyException;
+import com.github.sixro.util.Word;
+import com.github.sixro.util.Word.NoSuchDocPropertyException;
 
 public class ReleaseNotes {
 

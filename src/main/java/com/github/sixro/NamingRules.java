@@ -1,8 +1,10 @@
 package com.github.sixro;
 
-public class VodafoneCanvass {
+public class NamingRules {
 
-	public String standardFileName(String unversionedFileName, String system, String version, String date) {
+	private NamingRules() { }
+	
+	public static String standardFileName(String unversionedFileName, String system, String version, String date) {
 		int dotIndex = unversionedFileName.lastIndexOf('.');
 		return new StringBuilder(unversionedFileName.substring(0, dotIndex))
 			.append('-')
