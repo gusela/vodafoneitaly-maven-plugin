@@ -7,12 +7,12 @@ import org.apache.maven.plugin.*;
 
 /**
  * Goal which touches a timestamp file.
- *
+ * 
  * @goal package
  * @phase install
  */
 public class PackageMojo extends AbstractMojo {
-	
+
 	/**
 	 * The system.
 	 * 
@@ -37,40 +37,41 @@ public class PackageMojo extends AbstractMojo {
 	 */
 	private String date;
 
-    /**
-     * Location of the output directory.
-     * 
-     * @parameter expression="${project.build.directory}/vodafonecanvass"
-     * @required
-     */
-    private File outputDirectory;
-    
-    /**
-     * Release notes template.
-     * 
-     * <p>
-     * It is a word document where some parts has to be changed. E.g. version, system 
-     * the list of files released, etc...
-     * </p>
-     * 
-     * @parameter expression="${vodafonecanvass.releasenotes.template}"
-     * @required
-     */
-    private File releaseNotesTemplate;
-    
-    private VodafoneCanvass vodafoneCanvass = new VodafoneCanvass();    
+	/**
+	 * Location of the output directory.
+	 * 
+	 * @parameter expression="${project.build.directory}/vodafonecanvass"
+	 * @required
+	 */
+	private File outputDirectory;
+
+	/**
+	 * Release notes template.
+	 * 
+	 * <p>
+	 * It is a word document where some parts has to be changed. E.g. version,
+	 * system the list of files released, etc...
+	 * </p>
+	 * 
+	 * @parameter expression="${vodafonecanvass.releasenotes.template}"
+	 * @required
+	 */
+	private File releaseNotesTemplate;
+
+	private VodafoneCanvass vodafoneCanvass = new VodafoneCanvass();
 
 	public void execute() throws MojoExecutionException {
-    	getLog().info("Packaging for Vodafone Canvass");
-    	getLog().info("  Release Notes Template .......: " + releaseNotesTemplate);
-    	
-    	if (! outputDirectory.exists())
-    		outputDirectory.mkdirs();
-    	
-    	File releaseNotes = new File(outputDirectory, vodafoneCanvass.standardFileName(releaseNotesTemplate.getName(), system, version, date));
-    	if (releaseNotes.exists()) delete(releaseNotes);
-    	copy(releaseNotesTemplate, releaseNotes);
-    }
+		getLog().info("Packaging for Vodafone Canvass");
+		getLog().info("  Release Notes Template .......: " + releaseNotesTemplate);
+
+		if (!outputDirectory.exists())
+			outputDirectory.mkdirs();
+
+		File releaseNotes = new File(outputDirectory, vodafoneCanvass.standardFileName(releaseNotesTemplate.getName(), system, version, date));
+		if (releaseNotes.exists())
+			delete(releaseNotes);
+		copy(releaseNotesTemplate, releaseNotes);
+	}
 
 	private void copy(File source, File dest) {
 		try {
@@ -81,8 +82,8 @@ public class PackageMojo extends AbstractMojo {
 	}
 
 	private void delete(File file) {
-		if (! file.delete())
+		if (!file.delete())
 			throw new RuntimeException("unable to delete file " + file);
 	}
-    
+
 }
