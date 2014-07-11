@@ -3,23 +3,53 @@ package com.github.sixro;
 import java.io.*;
 import java.util.*;
 
+import org.apache.poi.*;
+import org.apache.poi.POIXMLProperties.CustomProperties;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.junit.Test;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
+import org.openxmlformats.schemas.officeDocument.x2006.customProperties.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 public class WordDocsLearningTest {
 
 	@Test public void test() throws IOException {
 		XWPFDocument word = new XWPFDocument(WordDocsLearningTest.class.getResourceAsStream("/RN.docx"));
+		System.out.println("isEnforcedUpdateFields " + word.isEnforcedUpdateFields());
+		word.enforceUpdateFields();
 	    
-		insertAtBookmark(word, "listOfSoftwareComponents", new String[]{ "MD-MERLINO-V1.0.2-20140608.xls", "another-excel.xls" });
+//		insertAtBookmark(word, "listOfSoftwareComponents", new String[]{ "MD-MERLINO-V1.0.2-20140608.xls", "another-excel.xls" });
+		
+		// NOTE: this way to print fields does not run!!!
+		//printFields(word);
+		
+		POIXMLProperties documentProperties = word.getProperties();
+		CustomProperties customProperties = documentProperties.getCustomProperties();
+		CTProperties properties = customProperties.getUnderlyingProperties();
+		List<CTProperty> propertyList = properties.getPropertyList();
+		for (CTProperty prop : propertyList) {
+			if (prop.getName().equalsIgnoreCase("_dversion")) {
+				prop.setLpwstr("test");
+			}
+		}
+		documentProperties.commit();
 	    
-	    File file = new File("src/test/resources/myword.docx");
+		//File file = new File("src/test/resources/myword.docx");
+	    File file = new File("target/myword.docx");
 	    if (file.exists()) file.delete();
 	    FileOutputStream os = new FileOutputStream(file);
 	    word.write(os);
 	    os.close();
+	}
+
+	@SuppressWarnings("unused")
+	private void printFields(XWPFDocument word) {
+		for (XWPFParagraph p : word.getParagraphs()) {
+			List<CTSimpleField> fields = p.getCTP().getFldSimpleList();
+			for (CTSimpleField f : fields) {
+				System.out.println(f);
+			}
+		}
 	}
 
 	public final void insertAtBookmark(XWPFDocument document, String bookmarkName, String[] paragraphs) {
@@ -29,7 +59,6 @@ public class WordDocsLearningTest {
         List<CTBookmark> bookmarkList = null;
         Iterator<CTBookmark> bookmarkIter = null;
         CTBookmark bookmark = null;
-        XWPFRun run = null;
        
         paraList = document.getParagraphs();
         paraIter = paraList.iterator();
@@ -43,8 +72,6 @@ public class WordDocsLearningTest {
             while(bookmarkIter.hasNext()) {
                 bookmark = bookmarkIter.next();
                 if(bookmark.getName().equals(bookmarkName)) {
-                    run = para.createRun();
-                    
                     createParagraphs(para, paragraphs);
                     return;
                 }

@@ -2,7 +2,6 @@ package com.github.sixro;
 
 import java.io.*;
 
-import org.apache.commons.io.*;
 import org.apache.maven.plugin.*;
 
 /**
@@ -67,17 +66,20 @@ public class PackageMojo extends AbstractMojo {
 		if (!outputDirectory.exists())
 			outputDirectory.mkdirs();
 
-		File releaseNotes = new File(outputDirectory, vodafoneCanvass.standardFileName(releaseNotesTemplate.getName(), system, version, date));
-		if (releaseNotes.exists())
-			delete(releaseNotes);
-		copy(releaseNotesTemplate, releaseNotes);
+		File releaseNotesFile = new File(outputDirectory, vodafoneCanvass.standardFileName(releaseNotesTemplate.getName(), system, version, date));
+		if (releaseNotesFile.exists())
+			delete(releaseNotesFile);
+		
+		ReleaseNotes releaseNotes = new ReleaseNotes(openWord(releaseNotesTemplate));
+		releaseNotes.setSystem(system);
+		releaseNotes.save(releaseNotesFile);
 	}
 
-	private void copy(File source, File dest) {
+	private Word openWord(File file) {
 		try {
-			FileUtils.copyFile(source, dest);
+			return new Word(file);
 		} catch (IOException e) {
-			throw new RuntimeException("unable to copy source file " + source + " to dest file " + dest, e);
+			throw new RuntimeException("unable to open word document '" + file + "'", e);
 		}
 	}
 
