@@ -33,7 +33,7 @@ public class ReleaseNotesTest {
 		properties.setProperty("my.property", "Hello World");
 		
 		context.checking(new Expectations() {{ 
-			oneOf(word).replaceText("${my.property}", "Hello World");
+			oneOf(word).replaceText("my.property", "Hello World");
 		}});
 		
 		releaseNotes.replaceAll(properties);

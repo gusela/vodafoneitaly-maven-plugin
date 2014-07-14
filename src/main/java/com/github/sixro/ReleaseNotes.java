@@ -22,8 +22,11 @@ public class ReleaseNotes {
 	}
 
 	public void replaceAll(Properties properties) {
-		for (String propertyName : properties.stringPropertyNames())
-			word.replaceText("${" + propertyName + "}", properties.getProperty(propertyName));
+		for (String propertyName : properties.stringPropertyNames()) {
+			// NOTE: we cannot use placeholder like ${myprop} because those ${ break paragraphs in XWPFRun in word, so we
+			//       need to keep the properties as is
+			word.replaceText(propertyName, properties.getProperty(propertyName));
+		}
 	}
 
 }
