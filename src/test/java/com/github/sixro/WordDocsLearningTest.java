@@ -15,7 +15,7 @@ public class WordDocsLearningTest {
 
 	@Test public void test() throws IOException {
 		XWPFDocument word = new XWPFDocument(WordDocsLearningTest.class.getResourceAsStream("/RN.docx"));
-		System.out.println("isEnforcedUpdateFields " + word.isEnforcedUpdateFields());
+//		System.out.println("isEnforcedUpdateFields " + word.isEnforcedUpdateFields());
 		word.enforceUpdateFields();
 	    
 //		insertAtBookmark(word, "listOfSoftwareComponents", new String[]{ "MD-MERLINO-V1.0.2-20140608.xls", "another-excel.xls" });

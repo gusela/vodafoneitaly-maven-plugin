@@ -1,6 +1,7 @@
 package com.github.sixro;
 
 import java.io.*;
+import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -8,7 +9,6 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.*;
 
 import com.github.sixro.util.Word;
-import com.github.sixro.util.Word.NoSuchDocPropertyException;
 
 public class ReleaseNotesTest {
 
@@ -18,14 +18,6 @@ public class ReleaseNotesTest {
 	private Word word = context.mock(Word.class);
 	private ReleaseNotes releaseNotes = new ReleaseNotes(word);
 	
-	@Test public void setSystem_updateDocProperty_underscoredprj() throws NoSuchDocPropertyException {
-		context.checking(new Expectations() {{ 
-			oneOf(word).setTextualDocProperty("_dprj", "Boh");
-		}});
-		
-		releaseNotes.setSystem("Boh");
-	}
-
 	@Test public void save_delegate_to_word_save() throws IOException {
 		final File file = new File("ignore");
 
@@ -36,4 +28,15 @@ public class ReleaseNotesTest {
 		releaseNotes.save(file);
 	}
 
+	@Test public void replaceAll_replace_each_property_using_a_placeholder() {
+		final Properties properties = new Properties();
+		properties.setProperty("my.property", "Hello World");
+		
+		context.checking(new Expectations() {{ 
+			oneOf(word).replaceText("${my.property}", "Hello World");
+		}});
+		
+		releaseNotes.replaceAll(properties);
+	}
+	
 }

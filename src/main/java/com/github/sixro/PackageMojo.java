@@ -1,8 +1,10 @@
 package com.github.sixro;
 
 import java.io.*;
+import java.util.Properties;
 
 import org.apache.maven.plugin.*;
+import org.apache.maven.project.MavenProject;
 
 import com.github.sixro.util.Word;
 
@@ -13,6 +15,11 @@ import com.github.sixro.util.Word;
  * @phase install
  */
 public class PackageMojo extends AbstractMojo {
+
+	/**
+	 * @parameter default-value="${project}"
+	 */
+	private MavenProject mavenProject;
 
 	/**
 	 * The system.
@@ -69,9 +76,15 @@ public class PackageMojo extends AbstractMojo {
 		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, date));
 		if (releaseNotesFile.exists())
 			delete(releaseNotesFile);
+
+		Properties properties = mavenProject.getProperties();
+		Properties enhancedProperties = new Properties(properties);
+		enhancedProperties.setProperty("vodafonecanvass.system", system);
+		enhancedProperties.setProperty("vodafonecanvass.version", version);
+		enhancedProperties.setProperty("vodafonecanvass.date", date);
 		
 		ReleaseNotes releaseNotes = new ReleaseNotes(openWord(releaseNotesTemplate));
-		releaseNotes.setSystem(system);
+		releaseNotes.replaceAll(enhancedProperties);
 		releaseNotes.save(releaseNotesFile);
 	}
 
