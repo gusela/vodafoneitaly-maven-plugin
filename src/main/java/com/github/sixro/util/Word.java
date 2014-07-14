@@ -32,21 +32,41 @@ public class Word {
 	}
 
 	public void replaceText(String text, String replacement) {
-		List<XWPFHeader> headerList = word.getHeaderList();
-		for (XWPFHeader header : headerList)
+		List<XWPFHeader> headers = word.getHeaderList();
+		for (XWPFHeader header : headers) {
+			replaceAllInTables(header.getTables(), text, replacement);
 			replaceAll(header.getParagraphs(), text, replacement);
+		}
 
-		List<XWPFParagraph> paragraphs = word.getParagraphs();
-		replaceAll(paragraphs, text, replacement);
+		List<XWPFFooter> footers = word.getFooterList();
+		for (XWPFFooter footer: footers) {
+			replaceAllInTables(footer.getTables(), text, replacement);
+			replaceAll(footer.getParagraphs(), text, replacement);
+		}
+		
+		replaceAllInTables(word.getTables(), text, replacement);
+		replaceAll(word.getParagraphs(), text, replacement);
 	}
 
 	public boolean containsText(String text) {
-		List<XWPFHeader> headerList = word.getHeaderList();
-		for (XWPFHeader header : headerList) {
+		List<XWPFHeader> headers = word.getHeaderList();
+		for (XWPFHeader header : headers) {
+			if (tablesContainText(header.getTables(), text))
+				return true;
 			if (containsText(header.getParagraphs(), text))
 				return true;
 		}
 		
+		List<XWPFFooter> footers = word.getFooterList();
+		for (XWPFFooter footer: footers) {
+			if (tablesContainText(footer.getTables(), text))
+				return true;
+			if (containsText(footer.getParagraphs(), text))
+				return true;
+		}
+		
+		if (tablesContainText(word.getTables(), text))
+			return true;
 		return containsText(word.getParagraphs(), text);
 	}
 
@@ -68,6 +88,17 @@ public class Word {
 		}
 	}
 	
+	private void replaceAllInTables(List<XWPFTable> tables, String text, String replacement) {
+		for (XWPFTable table : tables) {
+			List<XWPFTableRow> rows = table.getRows();
+			for (XWPFTableRow row : rows) {
+				List<XWPFTableCell> cells = row.getTableCells();
+				for (XWPFTableCell cell : cells)
+					replaceAll(cell.getParagraphs(),  text,  replacement);
+			}
+		}
+	}
+	
 	private boolean containsText(List<XWPFParagraph> paragraphs, String text) {
 		for (XWPFParagraph paragraph : paragraphs) {
 			for (XWPFRun r : paragraph.getRuns()) {
@@ -80,6 +111,20 @@ public class Word {
 		return false;
 	}
 	
+	private boolean tablesContainText(List<XWPFTable> tables, String text) {
+		for (XWPFTable table : tables) {
+			List<XWPFTableRow> rows = table.getRows();
+			for (XWPFTableRow row : rows) {
+				List<XWPFTableCell> cells = row.getTableCells();
+				for (XWPFTableCell cell : cells) {
+					if (containsText(cell.getParagraphs(), text))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private CTProperty findProperty(String propertyName) throws NoSuchDocPropertyException {
 		CTProperty property = null;
 		for (CTProperty prop : word.getProperties().getCustomProperties().getUnderlyingProperties().getPropertyList()) {
