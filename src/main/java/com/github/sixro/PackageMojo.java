@@ -29,6 +29,19 @@ public class PackageMojo extends AbstractMojo {
 	private MavenProject mavenProject;
 
 	/**
+	 * The SG/ST related to this release.
+	 * 
+	 * <p>
+	 * PAY ATTENTION: in SQL files there are a redundant information, but SQL scripts could be related to more than one SG/ST.
+	 * Here we need this information in order to generate MD document where SG/ST appear as the first column of each file.
+	 * </p>
+	 * 
+	 * @parameter expression="${vodafonecanvass.sgst}"
+	 * @required
+	 */
+	private String sgst;
+
+	/**
 	 * The system.
 	 * 
 	 * @parameter expression="${vodafonecanvass.system}"
@@ -118,7 +131,6 @@ public class PackageMojo extends AbstractMojo {
 
 		Properties enhancedProperties = enhanceProjectProperties();
 		
-		// * generate MD
 		// * copy all files
 		//     * if they are MS Word replace all enhanced properties
 		//     * if they are MS Excel replace all enhanced properties
@@ -137,43 +149,39 @@ public class PackageMojo extends AbstractMojo {
 
 		try {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
+			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
+			copyAllOtherFiles(kitDirectory, outputDirectory, system, version, localDate);
 		} catch (IOException e) {
-			throw new RuntimeException("unable to generate all SQ files", e);
+			throw new RuntimeException("unable to create kit", e);
 		}
 		
-		try {
-			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, system, version, localDate);
-		} catch (IOException e) {
-			throw new RuntimeException("unable to generate all SQ files", e);
-		}
-
-		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-		for (File file : files) {
-			String path = file.getPath();
-			String subpath = path.substring(kitDirectory.getPath().length());
-			if (subpath.startsWith("/") || subpath.startsWith("\\"))
-				subpath = subpath.substring(1);
-			
-			File outputFile = new File(outputDirectory, subpath);
-			File outputDir = outputFile.getParentFile();
-			String outputFilename = outputFile.getName();
-			int indexOfDot = outputFilename.lastIndexOf('.');
-			String filename = outputFilename.substring(0, indexOfDot);
-			String extension = outputFilename.substring(indexOfDot +1);
-			if (!extension.equalsIgnoreCase("sql") && ! StringUtils.containsAny(filename, "0123456789"))
-				outputFilename = NamingRules.standardFileName(outputFilename, system, version, localDate);
-			outputFile = new File(outputDir, outputFilename);
-			
-			System.out.println("  copying " + subpath + " to " + outputFile);
-		}
-		
-		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, localDate));
-		if (releaseNotesFile.exists())
-			delete(releaseNotesFile);
-
-		ReleaseNotes releaseNotes = new ReleaseNotes(openWord(releaseNotesTemplate));
-		releaseNotes.replaceAll(enhancedProperties);
-		releaseNotes.save(releaseNotesFile);
+//		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+//		for (File file : files) {
+//			String path = file.getPath();
+//			String subpath = path.substring(kitDirectory.getPath().length());
+//			if (subpath.startsWith("/") || subpath.startsWith("\\"))
+//				subpath = subpath.substring(1);
+//			
+//			File outputFile = new File(outputDirectory, subpath);
+//			File outputDir = outputFile.getParentFile();
+//			String outputFilename = outputFile.getName();
+//			int indexOfDot = outputFilename.lastIndexOf('.');
+//			String filename = outputFilename.substring(0, indexOfDot);
+//			String extension = outputFilename.substring(indexOfDot +1);
+//			if (!extension.equalsIgnoreCase("sql") && ! StringUtils.containsAny(filename, "0123456789"))
+//				outputFilename = NamingRules.standardFileName(outputFilename, system, version, localDate);
+//			outputFile = new File(outputDir, outputFilename);
+//			
+//			System.out.println("  copying " + subpath + " to " + outputFile);
+//		}
+//		
+//		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, localDate));
+//		if (releaseNotesFile.exists())
+//			delete(releaseNotesFile);
+//
+//		ReleaseNotes releaseNotes = new ReleaseNotes(openWord(releaseNotesTemplate));
+//		releaseNotes.replaceAll(enhancedProperties);
+//		releaseNotes.save(releaseNotesFile);
 	}
 
 	protected void generateAllSQ(File kitDirectory, File outputDirectory, File sqTemplate, String version, LocalDate date) throws IOException {
@@ -190,12 +198,22 @@ public class PackageMojo extends AbstractMojo {
 		}
 	}
 
-	protected File generateMD(File softwareDirectory, File docsOutputDirectory, File mdTemplate, String system, String version, LocalDate date) throws IOException {
-		//Collection<File> softwares = FileUtils.listFiles(softwareDirectory, TrueFileFilter.INSTANCE, null);
+	@SuppressWarnings("unchecked")
+	protected File generateMD(File softwareDirectory, File docsOutputDirectory, File mdTemplate, String sgst, String system, String version, LocalDate date) throws IOException {
+		Collection<File> softwares = FileUtils.listFiles(softwareDirectory, TrueFileFilter.INSTANCE, null);
 		
-		MD md = new MD(mdTemplate, system, version, date);
-		File mdFile = md.saveTo(docsOutputDirectory);
-		return mdFile;
+		MD md = new MD(mdTemplate, sgst, system, version, date);
+		for (File software : softwares) md.addSoftware(software);
+		return md.saveTo(docsOutputDirectory);
+	}
+
+	protected void copyAllOtherFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate localDate) {
+		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+		for (File file : files) {
+			String filename = file.getName();
+			String extension = filename.substring(filename.lastIndexOf('.') +1);
+			System.out.println("  " + filename + " => " + extension);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

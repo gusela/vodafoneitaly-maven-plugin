@@ -41,7 +41,7 @@ public class PackageMojoTest {
 	}
 
 	@Test public void generateMD_create_1_file_with_expected_name() throws IOException {
-		packageMojo.generateMD(SOFTWARES_DIR, MD_OUTPUT_DIR, MD_TEMPLATE, "Mer", "1.0.1", LocalDate.parse("2014-07-21"));
+		packageMojo.generateMD(SOFTWARES_DIR, MD_OUTPUT_DIR, MD_TEMPLATE, "ST11111", "Mer", "1.0.1", LocalDate.parse("2014-07-21"));
 		
 		assertEquals(1, numberOfFiles(MD_OUTPUT_DIR, "MD-", ".xls"));
 		assertTrue(containsFile(MD_OUTPUT_DIR, "MD-Mer-V1.0.1-20140721.xls"));

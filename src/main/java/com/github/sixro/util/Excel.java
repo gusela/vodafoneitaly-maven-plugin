@@ -150,6 +150,7 @@ public class Excel {
 	        case Cell.CELL_TYPE_BOOLEAN:
                 throw new IllegalArgumentException("name '" + name + "' refers to a boolean cell and not to a date cell");
 	        case Cell.CELL_TYPE_NUMERIC:
+	        case Cell.CELL_TYPE_BLANK:
 	            if (HSSFDateUtil.isCellDateFormatted(cell)) {
 	            	cell.setCellValue(datetime.toDate());
 	            } else {
@@ -158,9 +159,6 @@ public class Excel {
 	            break;
 	        case Cell.CELL_TYPE_STRING:
                 throw new IllegalArgumentException("name '" + name + "' refers to a boolean cell and not to a date cell");
-	        case Cell.CELL_TYPE_BLANK:
-	        	// FIXME
-	            break;
 	        case Cell.CELL_TYPE_ERROR:
 	        	// FIXME
 	            break;
@@ -182,14 +180,18 @@ public class Excel {
 	}
 
 	private HSSFCell findCellByName(String name) {
+//		int numberOfSheets = workBook.getNumberOfSheets();
+//		for (int i = 0; i < numberOfSheets; i++) {
+//			System.out.println("  sheet[" + i + "]: " + workBook.getSheetName(i));
+//		}
+
 		int nameIndex = workBook.getNameIndex(name);
 		HSSFName hssfName = workBook.getNameAt(nameIndex);
 		AreaReference areaReference = new AreaReference(hssfName.getRefersToFormula());
 		CellReference cellReference = areaReference.getAllReferencedCells()[0];
 		HSSFSheet sheet = workBook.getSheetAt(0);
 		HSSFRow row = sheet.getRow(cellReference.getRow());
-		HSSFCell cell = row.getCell((int) cellReference.getCol());
-		return cell;
+		return row.getCell((int) cellReference.getCol(), Row.CREATE_NULL_AS_BLANK);
 	}
 
 	private HSSFCell findCellByRef(String ref) {

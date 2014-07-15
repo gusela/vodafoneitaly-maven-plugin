@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.*;
 
@@ -14,6 +15,7 @@ public class ReleaseNotesTest {
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery() {{ 
 		setImposteriser(ClassImposteriser.INSTANCE);
+		setThreadingPolicy(new Synchroniser());
 	}};
 	private Word word = context.mock(Word.class);
 	private ReleaseNotes releaseNotes = new ReleaseNotes(word);
