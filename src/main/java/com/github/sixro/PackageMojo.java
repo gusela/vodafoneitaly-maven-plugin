@@ -98,7 +98,14 @@ public class PackageMojo extends AbstractMojo {
 	 * @parameter expression="${vodafonecanvass.md.template}" default-value="src/main/templates/MD.xls"
 	 */
 	private File mdTemplate;
-	
+
+	/**
+	 * Softwares sub-directory.
+	 * 
+	 * @parameter expression="${vodafonecanvass.softwares.subdirectory}" default-value="KitForOperations/${vodafonecanvass.system}/SOFTWARE"
+	 */
+	private String softwaresSubdirectory;
+
 	@SuppressWarnings("unchecked")
 	public void execute() throws MojoExecutionException {
 		getLog().info("Packaging for Vodafone Canvass");
@@ -125,6 +132,9 @@ public class PackageMojo extends AbstractMojo {
 		if (! docsOutputDirectory.exists())
 			docsOutputDirectory.mkdirs();
 
+		String realSoftwaresSubdirectory = StrSubstitutor.replace(softwaresSubdirectory, enhancedProperties);
+		File softwaresDirectory = new File(kitDirectory, realSoftwaresSubdirectory);
+
 		try {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 		} catch (IOException e) {
@@ -132,7 +142,7 @@ public class PackageMojo extends AbstractMojo {
 		}
 		
 		try {
-			generateMD(kitDirectory, docsOutputDirectory, mdTemplate, version, localDate);
+			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, system, version, localDate);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to generate all SQ files", e);
 		}
@@ -180,10 +190,15 @@ public class PackageMojo extends AbstractMojo {
 		}
 	}
 
-	private void generateMD(File kitDirectory2, File docsOutputDirectory, File mdTemplate2, String version2, LocalDate localDate) throws IOException {
-		// FIXME implementare
+	protected File generateMD(File softwareDirectory, File docsOutputDirectory, File mdTemplate, String system, String version, LocalDate date) throws IOException {
+		//Collection<File> softwares = FileUtils.listFiles(softwareDirectory, TrueFileFilter.INSTANCE, null);
+		
+		MD md = new MD(mdTemplate, system, version, date);
+		File mdFile = md.saveTo(docsOutputDirectory);
+		return mdFile;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<SqlMetadataForSQ, List<File>> newMapOfMetadata2files(File kitDirectory) {
 		Collection<File> files = FileUtils.listFiles(kitDirectory, new String[]{ "sql" }, true);
 		Map<SqlMetadataForSQ, List<File>> metadata2files = new HashMap<PackageMojo.SqlMetadataForSQ, List<File>>();
@@ -203,6 +218,7 @@ public class PackageMojo extends AbstractMojo {
 		return metadata2files;
 	}
 
+	@SuppressWarnings("unchecked")
 	private SqlMetadataForSQ findSqlMetadataForSQ(File file) {
 		try {
 			List<String> lines = FileUtils.readLines(file);
