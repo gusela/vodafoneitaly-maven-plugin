@@ -12,6 +12,7 @@ import org.junit.*;
 
 public class PackageMojoTest {
 
+	private static final File KIT_OUTPUT_DIRECTORY = new File("target/kit/");
 	private static final File SQ_OUTPUT_DIR = new File("target/sq/");
 	private static final File MD_OUTPUT_DIR = new File("target/md/");
 	private static final File MD_TEMPLATE = new File("src/test/resources/MD.xls");
@@ -21,17 +22,13 @@ public class PackageMojoTest {
 	private PackageMojo packageMojo;
 
 	@Before public void setup() throws IOException {
-		if (SQ_OUTPUT_DIR.exists())
-			FileUtils.deleteDirectory(SQ_OUTPUT_DIR);
-		SQ_OUTPUT_DIR.mkdirs();
-		
-		if (MD_OUTPUT_DIR.exists())
-			FileUtils.deleteDirectory(MD_OUTPUT_DIR);
-		MD_OUTPUT_DIR.mkdirs();
+		cleanDirectory(SQ_OUTPUT_DIR);
+		cleanDirectory(MD_OUTPUT_DIR);
+		cleanDirectory(KIT_OUTPUT_DIRECTORY);
 		
 		packageMojo = new PackageMojo();
 	}
-	
+
 	@Test public void generateAllSQ_create_2_files_SQ_containing_information_grabbed_by_scripts_also_when_scripts_are_3() throws IOException {
 		packageMojo.generateAllSQ(SQLS_DIR, SQ_OUTPUT_DIR, SQ_TEMPLATE, "1.0.1", LocalDate.parse("2014-07-21"));
 		
@@ -47,8 +44,18 @@ public class PackageMojoTest {
 		assertTrue(containsFile(MD_OUTPUT_DIR, "MD-Mer-V1.0.1-20140721.xls"));
 	}
 
+	@Test public void copyAllKitFiles_create_the_same_number_of_files_in_output_directory() throws IOException {
+		packageMojo.copyAllKitFiles(new File("src/test/resources/softwares"), KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"));
+		
+		assertEquals(2, numberOfFiles(KIT_OUTPUT_DIRECTORY));
+	}
+
 	private int numberOfFiles(File dir, String prefix, String suffix) {
-		return FileUtils.listFiles(dir, new AndFileFilter(new PrefixFileFilter(prefix), new SuffixFileFilter(suffix)), null).size();
+		return FileUtils.listFiles(dir, new AndFileFilter(new PrefixFileFilter(prefix), new SuffixFileFilter(suffix)), TrueFileFilter.INSTANCE).size();
+	}
+
+	private int numberOfFiles(File dir) {
+		return FileUtils.listFiles(dir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -61,4 +68,11 @@ public class PackageMojoTest {
 		return false;
 	}
 
+	private void cleanDirectory(File dir) throws IOException {
+		if (dir.exists())
+			FileUtils.deleteDirectory(dir);
+		dir.mkdirs();
+	}
+	
 }
+

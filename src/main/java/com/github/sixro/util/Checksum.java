@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Checksum {
 
+	// FIXME verificare se non sia un duplicato di FileUtils.checksum...
+	
 	public static String valueOf(File file) {
 		try {
 			Process process = exec("cksum " + file.getPath());

@@ -3,7 +3,7 @@ package com.github.sixro;
 import java.io.*;
 import java.util.*;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.*;
@@ -13,7 +13,7 @@ import org.apache.maven.project.MavenProject;
 import org.joda.time.*;
 import org.joda.time.format.*;
 
-import com.github.sixro.util.Word;
+import com.github.sixro.util.*;
 
 /**
  * Goal which touches a timestamp file.
@@ -150,7 +150,7 @@ public class PackageMojo extends AbstractMojo {
 		try {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
-			copyAllOtherFiles(kitDirectory, outputDirectory, system, version, localDate);
+			copyAllKitFiles(kitDirectory, outputDirectory, system, version, localDate);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
@@ -207,12 +207,19 @@ public class PackageMojo extends AbstractMojo {
 		return md.saveTo(docsOutputDirectory);
 	}
 
-	protected void copyAllOtherFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate localDate) {
+	protected void copyAllKitFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate localDate) throws IOException {
 		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 		for (File file : files) {
-			String filename = file.getName();
-			String extension = filename.substring(filename.lastIndexOf('.') +1);
-			System.out.println("  " + filename + " => " + extension);
+			String extension = FilenameUtils.getExtension(file.getName());
+			String relativePath = ExtendedFileUtils.getRelativePath(file, kitDirectory);
+			
+			File outputFile = new File(FilenameUtils.concat(outputDirectory.getPath(), relativePath));
+			System.out.println("  " + relativePath);
+			if (extension.equalsIgnoreCase("docx")) {
+				FileUtils.copyFile(file, outputFile);
+			} else {
+				FileUtils.copyFile(file, outputFile);
+			}
 		}
 	}
 
@@ -272,20 +279,8 @@ public class PackageMojo extends AbstractMojo {
 		return enhancedProperties;
 	}
 
-	private Word openWord(File file) {
-		try {
-			return new Word(file);
-		} catch (IOException e) {
-			throw new RuntimeException("unable to open word document '" + file + "'", e);
-		}
-	}
-
-	private void delete(File file) {
-		if (!file.delete())
-			throw new RuntimeException("unable to delete file " + file);
-	}
-
-	private static class SqlMetadataForSQ {
+	// FIXME questa classe potrebbe esser un MainMetadata e il reperimento potrebbe esser uno static della classe SQ dato che per fare il look up di SYSTEM e DATABASE potrebbe esser usato il metodo interno
+	public static class SqlMetadataForSQ {
 		
 		public final String system;
 		public final String database;
