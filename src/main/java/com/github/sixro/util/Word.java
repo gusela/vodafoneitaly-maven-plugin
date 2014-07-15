@@ -1,7 +1,7 @@
 package com.github.sixro.util;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;

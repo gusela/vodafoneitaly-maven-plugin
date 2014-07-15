@@ -3,7 +3,7 @@ package com.github.sixro;
 import static org.junit.Assert.*;
 
 import java.io.*;
-import java.util.Collection;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.*;
@@ -12,6 +12,7 @@ import org.junit.*;
 
 public class PackageMojoTest {
 
+	private static final File KIT_SOURCE_DIRECTORY = new File("src/test/resources/myCustomKit");
 	private static final File KIT_OUTPUT_DIRECTORY = new File("target/kit/");
 	private static final File SQ_OUTPUT_DIR = new File("target/sq/");
 	private static final File MD_OUTPUT_DIR = new File("target/md/");
@@ -45,9 +46,23 @@ public class PackageMojoTest {
 	}
 
 	@Test public void copyAllKitFiles_create_the_same_number_of_files_in_output_directory() throws IOException {
-		packageMojo.copyAllKitFiles(new File("src/test/resources/softwares"), KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"));
+		packageMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
 		
-		assertEquals(2, numberOfFiles(KIT_OUTPUT_DIRECTORY));
+		assertEquals(3, numberOfFiles(KIT_OUTPUT_DIRECTORY));
+	}
+
+	@Test public void copyAllKitFiles_copy_files_without_numbers_in_name_with_a_name_following_naming_rules() throws IOException {
+		packageMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
+		
+		assertTrue(containsFile(KIT_OUTPUT_DIRECTORY, "RN-Mer-V1.0.2-20140721.docx"));
+	}
+
+	@Test public void hasToBeRenamed_returns_false_when_input_contains_a_number() {
+		assertFalse(packageMojo.hasToBeRenamed(new File("RN-1.docx")));
+	}
+
+	@Test public void hasToBeRenamed_returns_true_when_input_does_not_contain_a_number() {
+		assertTrue(packageMojo.hasToBeRenamed(new File("RN-.docx")));
 	}
 
 	private int numberOfFiles(File dir, String prefix, String suffix) {
@@ -60,7 +75,7 @@ public class PackageMojoTest {
 
 	@SuppressWarnings("unchecked")
 	private boolean containsFile(File directory, String filename) {
-		Collection<File> files = FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, null);
+		Collection<File> files = FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 		for (File file : files) {
 			if (file.getName().equalsIgnoreCase(filename))
 				return true;

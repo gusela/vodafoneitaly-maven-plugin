@@ -119,7 +119,6 @@ public class PackageMojo extends AbstractMojo {
 	 */
 	private String softwaresSubdirectory;
 
-	@SuppressWarnings("unchecked")
 	public void execute() throws MojoExecutionException {
 		getLog().info("Packaging for Vodafone Canvass");
 		getLog().info("  Release Notes Template .......: " + releaseNotesTemplate);
@@ -150,7 +149,7 @@ public class PackageMojo extends AbstractMojo {
 		try {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
-			copyAllKitFiles(kitDirectory, outputDirectory, system, version, localDate);
+			copyAllKitFiles(kitDirectory, outputDirectory, system, version, localDate, enhancedProperties);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
@@ -207,20 +206,35 @@ public class PackageMojo extends AbstractMojo {
 		return md.saveTo(docsOutputDirectory);
 	}
 
-	protected void copyAllKitFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate localDate) throws IOException {
+	@SuppressWarnings("unchecked")
+	protected void copyAllKitFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate date, Properties properties) throws IOException {
 		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 		for (File file : files) {
-			String extension = FilenameUtils.getExtension(file.getName());
+			String filename = file.getName();
+			String extension = FilenameUtils.getExtension(filename);
 			String relativePath = ExtendedFileUtils.getRelativePath(file, kitDirectory);
-			
 			File outputFile = new File(FilenameUtils.concat(outputDirectory.getPath(), relativePath));
-			System.out.println("  " + relativePath);
+			if (hasToBeRenamed(file))
+				outputFile = new File(outputFile.getParentFile(), NamingRules.standardFileName(filename, system, version, date));
+			
+			File outputFileDirectory = outputFile.getParentFile();
+			if (! outputFileDirectory.exists())
+				outputFileDirectory.mkdirs();
+			
 			if (extension.equalsIgnoreCase("docx")) {
-				FileUtils.copyFile(file, outputFile);
+				Word word = new Word(file);
+				for (String property : properties.stringPropertyNames())
+					word.replaceText(property, properties.getProperty(property));
+				word.save(outputFile);
 			} else {
 				FileUtils.copyFile(file, outputFile);
 			}
 		}
+	}
+
+	protected boolean hasToBeRenamed(File file) {
+		String baseName = FilenameUtils.getBaseName(file.getName());
+		return ! StringUtils.containsAny(baseName, "0123456789");
 	}
 
 	@SuppressWarnings("unchecked")
