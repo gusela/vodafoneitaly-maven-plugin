@@ -41,10 +41,10 @@ public class Excel {
 	        	text = "";
 	            break;
 	        case Cell.CELL_TYPE_ERROR:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_FORMULA:
-	        	// FIXME
+	        	// TODO
 	            break;
 	    }
 		return text;
@@ -76,10 +76,10 @@ public class Excel {
 	        	text = "";
 	            break;
 	        case Cell.CELL_TYPE_ERROR:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_FORMULA:
-	        	// FIXME
+	        	// TODO
 	            break;
 	    }
 		return text;
@@ -103,10 +103,10 @@ public class Excel {
 	        case Cell.CELL_TYPE_BLANK:
 	            break;
 	        case Cell.CELL_TYPE_ERROR:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_FORMULA:
-	        	// FIXME
+	        	// TODO
 	            break;
 	    }
 		return value;
@@ -116,11 +116,11 @@ public class Excel {
 		HSSFCell cell = findCellByName(name);
 		switch (cell.getCellType()) {
 	        case Cell.CELL_TYPE_BOOLEAN:
-	        	// FIXME
+	        	// TODO
 	        	//text = "" + cell.getBooleanCellValue();
 	            break;
 	        case Cell.CELL_TYPE_NUMERIC:
-	        	// FIXME
+	        	// TODO
 //	            if (HSSFDateUtil.isCellDateFormatted(cell)) {
 //	                SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //                    Date dateCellValue = cell.getDateCellValue();
@@ -133,13 +133,13 @@ public class Excel {
 	            cell.setCellValue(text);
 	            break;
 	        case Cell.CELL_TYPE_BLANK:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_ERROR:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_FORMULA:
-	        	// FIXME
+	        	// TODO
 	            break;
 	    }
 	}
@@ -160,10 +160,10 @@ public class Excel {
 	        case Cell.CELL_TYPE_STRING:
                 throw new IllegalArgumentException("name '" + name + "' refers to a boolean cell and not to a date cell");
 	        case Cell.CELL_TYPE_ERROR:
-	        	// FIXME
+	        	// TODO
 	            break;
 	        case Cell.CELL_TYPE_FORMULA:
-	        	// FIXME
+	        	// TODO
 	            break;
 	    }
 	}

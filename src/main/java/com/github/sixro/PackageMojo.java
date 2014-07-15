@@ -130,11 +130,6 @@ public class PackageMojo extends AbstractMojo {
 
 		Properties enhancedProperties = enhanceProjectProperties();
 		
-		// * copy all files
-		//     * if they are MS Word replace all enhanced properties
-		//     * if they are MS Excel replace all enhanced properties
-		//     * if they are SQL transform in DOS mode and replace the first row looking for information within the file
-
 		DateTimeFormatter parser = DateTimeFormat.forPattern("yyyyMMdd");
 		LocalDate localDate = LocalDate.parse(date, parser);
 		
@@ -153,34 +148,6 @@ public class PackageMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
-		
-//		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-//		for (File file : files) {
-//			String path = file.getPath();
-//			String subpath = path.substring(kitDirectory.getPath().length());
-//			if (subpath.startsWith("/") || subpath.startsWith("\\"))
-//				subpath = subpath.substring(1);
-//			
-//			File outputFile = new File(outputDirectory, subpath);
-//			File outputDir = outputFile.getParentFile();
-//			String outputFilename = outputFile.getName();
-//			int indexOfDot = outputFilename.lastIndexOf('.');
-//			String filename = outputFilename.substring(0, indexOfDot);
-//			String extension = outputFilename.substring(indexOfDot +1);
-//			if (!extension.equalsIgnoreCase("sql") && ! StringUtils.containsAny(filename, "0123456789"))
-//				outputFilename = NamingRules.standardFileName(outputFilename, system, version, localDate);
-//			outputFile = new File(outputDir, outputFilename);
-//			
-//			System.out.println("  copying " + subpath + " to " + outputFile);
-//		}
-//		
-//		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, localDate));
-//		if (releaseNotesFile.exists())
-//			delete(releaseNotesFile);
-//
-//		ReleaseNotes releaseNotes = new ReleaseNotes(openWord(releaseNotesTemplate));
-//		releaseNotes.replaceAll(enhancedProperties);
-//		releaseNotes.save(releaseNotesFile);
 	}
 
 	protected void generateAllSQ(File kitDirectory, File outputDirectory, File sqTemplate, String version, LocalDate date) throws IOException {
@@ -229,6 +196,9 @@ public class PackageMojo extends AbstractMojo {
 			} else {
 				FileUtils.copyFile(file, outputFile);
 			}
+			
+			// FIXME SQL files need a special header
+			// TODO SQL files need to be in DOS format
 		}
 	}
 
@@ -293,7 +263,7 @@ public class PackageMojo extends AbstractMojo {
 		return enhancedProperties;
 	}
 
-	// FIXME questa classe potrebbe esser un MainMetadata e il reperimento potrebbe esser uno static della classe SQ dato che per fare il look up di SYSTEM e DATABASE potrebbe esser usato il metodo interno
+	// TODO questa classe potrebbe esser un MainMetadata e il reperimento potrebbe esser uno static della classe SQ dato che per fare il look up di SYSTEM e DATABASE potrebbe esser usato il metodo interno
 	public static class SqlMetadataForSQ {
 		
 		public final String system;
