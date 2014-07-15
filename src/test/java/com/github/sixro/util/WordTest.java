@@ -25,16 +25,16 @@ public class WordTest {
 		temporaryFile = new File(OUTPUT_DIR, "example_changed.docx");
 	}
 	
-//	@Test public void setTextualDocProperty_change_expected_property() throws NoSuchDocPropertyException, IOException {
-//		assertEquals("Hello World", word.getTextualDocProperty(propertyName));
-//		
-//		word.setTextualDocProperty(propertyName, "Bye bye");
-//		word.save(temporaryFile);
-//		
-//		assertEquals("Bye bye", new Word(temporaryFile).getTextualDocProperty(propertyName));
-//	}
-//
-	@Test public void replaceText_produce_a_doc_that_will_not_contains_that_text_anymore() throws NoSuchDocPropertyException, IOException {
+	@Test public void setTextualDocProperty_change_expected_property() throws NoSuchDocPropertyException, IOException {
+		assertEquals("Hello World", word.getTextualDocProperty(propertyName));
+		
+		word.setTextualDocProperty(propertyName, "Bye bye");
+		word.save(temporaryFile);
+		
+		assertEquals("Bye bye", new Word(temporaryFile).getTextualDocProperty(propertyName));
+	}
+
+	@Test public void replaceText_produces_a_doc_that_will_not_contains_that_text_anymore() throws NoSuchDocPropertyException, IOException {
 		String placeholder = "my.property";
 		assertTrue(word.containsText(placeholder));
 		
