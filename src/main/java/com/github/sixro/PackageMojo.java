@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.*;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.plugin.*;
 import org.apache.maven.project.MavenProject;
 import org.joda.time.*;
@@ -49,7 +50,7 @@ public class PackageMojo extends AbstractMojo {
 	 * @parameter expression="${vodafonecanvass.date}"
 	 * @required
 	 */
-	private String dateAsText;
+	private String date;
 
 	/**
 	 * Location of the output directory.
@@ -83,7 +84,21 @@ public class PackageMojo extends AbstractMojo {
 	 * @parameter expression="${vodafonecanvass.sq.template}" default-value="src/main/templates/SQ.xls"
 	 */
 	private File sqTemplate;
+	
+	/**
+	 * Docs sub-directory.
+	 * 
+	 * @parameter expression="${vodafonecanvass.docs.subdirectory}" default-value="KitForOperations/${vodafonecanvass.system}/DOCS/Delivery"
+	 */
+	private String docsSubdirectory;
 
+	/**
+	 * MD template.
+	 * 
+	 * @parameter expression="${vodafonecanvass.md.template}" default-value="src/main/templates/MD.xls"
+	 */
+	private File mdTemplate;
+	
 	@SuppressWarnings("unchecked")
 	public void execute() throws MojoExecutionException {
 		getLog().info("Packaging for Vodafone Canvass");
@@ -103,13 +118,25 @@ public class PackageMojo extends AbstractMojo {
 		//     * if they are SQL transform in DOS mode and replace the first row looking for information within the file
 
 		DateTimeFormatter parser = DateTimeFormat.forPattern("yyyyMMdd");
-		LocalDate date = LocalDate.parse(dateAsText, parser);
+		LocalDate localDate = LocalDate.parse(date, parser);
+		
+		String realDocsSubdirectory = StrSubstitutor.replace(docsSubdirectory, enhancedProperties);
+		File docsOutputDirectory = new File(outputDirectory, realDocsSubdirectory);
+		if (! docsOutputDirectory.exists())
+			docsOutputDirectory.mkdirs();
+
 		try {
-			generateAllSQ(kitDirectory, outputDirectory, sqTemplate, version, date);
+			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to generate all SQ files", e);
 		}
 		
+		try {
+			generateMD(kitDirectory, docsOutputDirectory, mdTemplate, version, localDate);
+		} catch (IOException e) {
+			throw new RuntimeException("unable to generate all SQ files", e);
+		}
+
 		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 		for (File file : files) {
 			String path = file.getPath();
@@ -124,13 +151,13 @@ public class PackageMojo extends AbstractMojo {
 			String filename = outputFilename.substring(0, indexOfDot);
 			String extension = outputFilename.substring(indexOfDot +1);
 			if (!extension.equalsIgnoreCase("sql") && ! StringUtils.containsAny(filename, "0123456789"))
-				outputFilename = NamingRules.standardFileName(outputFilename, system, version, date);
+				outputFilename = NamingRules.standardFileName(outputFilename, system, version, localDate);
 			outputFile = new File(outputDir, outputFilename);
 			
 			System.out.println("  copying " + subpath + " to " + outputFile);
 		}
 		
-		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, date));
+		File releaseNotesFile = new File(outputDirectory, NamingRules.standardFileName(releaseNotesTemplate.getName(), system, version, localDate));
 		if (releaseNotesFile.exists())
 			delete(releaseNotesFile);
 
@@ -139,7 +166,6 @@ public class PackageMojo extends AbstractMojo {
 		releaseNotes.save(releaseNotesFile);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void generateAllSQ(File kitDirectory, File outputDirectory, File sqTemplate, String version, LocalDate date) throws IOException {
 		Map<SqlMetadataForSQ, List<File>> metadata2files = newMapOfMetadata2files(kitDirectory);
 
@@ -148,22 +174,32 @@ public class PackageMojo extends AbstractMojo {
 			List<File> sqls = metadata2files.get(metadata);
 			for (File sql : sqls)
 				sq.addSQL(sql);
-			sq.saveTo(outputDirectory);
+			File sqFile = sq.saveTo(outputDirectory);
+			
+			getLog().info("generated SQ file '" + sqFile + "'");
 		}
+	}
+
+	private void generateMD(File kitDirectory2, File docsOutputDirectory, File mdTemplate2, String version2, LocalDate localDate) throws IOException {
+		// FIXME implementare
 	}
 
 	private Map<SqlMetadataForSQ, List<File>> newMapOfMetadata2files(File kitDirectory) {
 		Collection<File> files = FileUtils.listFiles(kitDirectory, new String[]{ "sql" }, true);
 		Map<SqlMetadataForSQ, List<File>> metadata2files = new HashMap<PackageMojo.SqlMetadataForSQ, List<File>>();
 		for (File file : files) {
+			getLog().info("... found SQL file '" + file + "'...");
+			
 			SqlMetadataForSQ metadata = findSqlMetadataForSQ(file);
-			List<File> list = metadata2files.get(file);
+			List<File> list = metadata2files.get(metadata);
 			if (list == null) {
 				list = new LinkedList<File>();
 				metadata2files.put(metadata, list);
 			}
 			list.add(file);
 		}
+		
+		getLog().info("map of metadata 2 SQL files: " + metadata2files);
 		return metadata2files;
 	}
 
@@ -198,7 +234,7 @@ public class PackageMojo extends AbstractMojo {
 		Properties enhancedProperties = new Properties(properties);
 		enhancedProperties.setProperty("vodafonecanvass.system", system);
 		enhancedProperties.setProperty("vodafonecanvass.version", version);
-		enhancedProperties.setProperty("vodafonecanvass.date", dateAsText);
+		enhancedProperties.setProperty("vodafonecanvass.date", date);
 		return enhancedProperties;
 	}
 
