@@ -193,12 +193,14 @@ public class PackageMojo extends AbstractMojo {
 				for (String property : properties.stringPropertyNames())
 					word.replaceText(property, properties.getProperty(property));
 				word.save(outputFile);
+			} else if (extension.equalsIgnoreCase("sql")) {
+				SQL sql = new SQL(file);
+				sql.save(outputFile);
 			} else {
 				FileUtils.copyFile(file, outputFile);
 			}
 			
 			// FIXME SQL files need a special header
-			// TODO SQL files need to be in DOS format
 		}
 	}
 
