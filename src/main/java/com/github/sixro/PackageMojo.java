@@ -4,17 +4,16 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.commons.io.*;
-import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.*;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.plugin.*;
 import org.apache.maven.project.MavenProject;
-import org.joda.time.*;
+import org.javatuples.Pair;
+import org.joda.time.LocalDate;
 import org.joda.time.format.*;
 
-import com.github.sixro.util.*;
 import com.github.sixro.util.Checksum.MD5;
+import com.github.sixro.util.*;
 
 /**
  * Goal which touches a timestamp file.
@@ -147,32 +146,43 @@ public class PackageMojo extends AbstractMojo {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void generateAllSQ(File kitDirectory, File outputDirectory, File sqTemplate, String version, LocalDate date) throws IOException {
-		Map<SqlMetadataForSQ, List<File>> metadata2files = newMapOfMetadata2files(kitDirectory);
-
-		for (SqlMetadataForSQ metadata : metadata2files.keySet()) {
-			SQ sq = new SQ(sqTemplate, metadata.system, metadata.database, version, date);
-			List<File> files = metadata2files.get(metadata);
-			for (File file : files)
-				sq.addSQL(new SQL(file));
+		Map<Pair<String, String>, List<SQL>> systemsAndDatabasesToSQLs = new LinkedHashMap<Pair<String,String>, List<SQL>>();
+		Collection<File> files = FileUtils.listFiles(kitDirectory, new String[]{ "sql" }, true);
+		for (File file : files) {
+			SQL sql = new SQL(file);
+			Pair<String,String> systemAndDatabase = sql.systemAndDatabase();
+			List<SQL> sqls = systemsAndDatabasesToSQLs.get(systemAndDatabase);
+			if (sqls == null) {
+				sqls = new LinkedList<SQL>();
+				systemsAndDatabasesToSQLs.put(systemAndDatabase, sqls);
+			}
+			
+			sqls.add(sql);
+		}
+		
+		for (Pair<String, String> systemAndDatabase : systemsAndDatabasesToSQLs.keySet()) {
+			SQ sq = new SQ(sqTemplate, systemAndDatabase.getValue0(), systemAndDatabase.getValue1(), version, date);
+			List<SQL> sqls = systemsAndDatabasesToSQLs.get(systemAndDatabase);
+			for (SQL sql : sqls)
+				sq.addSQL(sql);
 			File sqFile = sq.saveTo(outputDirectory);
 			
 			getLog().info("generated SQ file '" + sqFile + "'");
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected File generateMD(File softwareDirectory, File docsOutputDirectory, File mdTemplate, String sgst, String system, String version, LocalDate date) throws IOException {
-		Collection<File> softwares = FileUtils.listFiles(softwareDirectory, TrueFileFilter.INSTANCE, null);
+		Collection<File> softwares = ExtendedFileUtils.listFiles(softwareDirectory);
 		
 		MD md = new MD(mdTemplate, sgst, system, version, date);
 		for (File software : softwares) md.addSoftware(software);
 		return md.saveTo(docsOutputDirectory);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void copyAllKitFiles(File kitDirectory, File outputDirectory, String system, String version, LocalDate date, Properties properties) throws IOException {
-		Collection<File> files = FileUtils.listFiles(kitDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+		Collection<File> files = ExtendedFileUtils.listFilesRecursive(kitDirectory);
 		for (File file : files) {
 			String filename = file.getName();
 			String extension = FilenameUtils.getExtension(filename);
@@ -212,9 +222,8 @@ public class PackageMojo extends AbstractMojo {
 		return md5file;
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected void createMD5(File directory, File md5File) throws IOException {
-		Collection<File> files = FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+		Collection<File> files = ExtendedFileUtils.listFilesRecursive(directory);
 		PrintWriter writer = new PrintWriter(md5File);
 		for (File file : files) {
 			String md5checksum = MD5.valueOf(file);
@@ -232,53 +241,6 @@ public class PackageMojo extends AbstractMojo {
 		return ! StringUtils.containsAny(baseName, "0123456789");
 	}
 
-	@SuppressWarnings("unchecked")
-	private Map<SqlMetadataForSQ, List<File>> newMapOfMetadata2files(File kitDirectory) {
-		Collection<File> files = FileUtils.listFiles(kitDirectory, new String[]{ "sql" }, true);
-		Map<SqlMetadataForSQ, List<File>> metadata2files = new HashMap<PackageMojo.SqlMetadataForSQ, List<File>>();
-		for (File file : files) {
-			getLog().info("... found SQL file '" + file + "'...");
-			
-			SqlMetadataForSQ metadata = findSqlMetadataForSQ(file);
-			List<File> list = metadata2files.get(metadata);
-			if (list == null) {
-				list = new LinkedList<File>();
-				metadata2files.put(metadata, list);
-			}
-			list.add(file);
-		}
-		
-		getLog().info("map of metadata 2 SQL files: " + metadata2files);
-		return metadata2files;
-	}
-
-	@SuppressWarnings("unchecked")
-	private SqlMetadataForSQ findSqlMetadataForSQ(File file) {
-		try {
-			List<String> lines = FileUtils.readLines(file);
-			String system = null;
-			String database = null;
-			for (String line : lines) {
-				line = line.trim();
-				if (line.isEmpty()) continue;
-				
-				if (line.startsWith("SYSTEM")) {
-					system = line.substring(line.indexOf(':') +1).trim();
-				}
-				if (line.startsWith("DATABASE")) {
-					database = line.substring(line.indexOf(':') +1).trim();
-				}
-			}
-			if (StringUtils.isBlank(system) || StringUtils.isBlank(database))
-				throw new IllegalStateException("Unable to process SQL " + file + ": SYSTEM or DATABASE headers are not valued!");
-			
-			SqlMetadataForSQ metadata = new SqlMetadataForSQ(system, database);
-			return metadata;
-		} catch (IOException e) {
-			throw new RuntimeException("unable to read SQL file " + file, e);
-		}
-	}
-
 	private Properties enhanceProjectProperties() {
 		Properties properties = mavenProject.getProperties();
 		Properties enhancedProperties = new Properties(properties);
@@ -288,33 +250,4 @@ public class PackageMojo extends AbstractMojo {
 		return enhancedProperties;
 	}
 
-	// TODO questa classe potrebbe esser un MainMetadata e il reperimento potrebbe esser uno static della classe SQ dato che per fare il look up di SYSTEM e DATABASE potrebbe esser usato il metodo interno
-	public static class SqlMetadataForSQ {
-		
-		public final String system;
-		public final String database;
-
-		public SqlMetadataForSQ(String system, String database) {
-			super();
-			this.system = system;
-			this.database = database;
-		}
-
-		@Override
-		public int hashCode() {
-			return HashCodeBuilder.reflectionHashCode(this);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return EqualsBuilder.reflectionEquals(this, obj);
-		}
-
-		@Override
-		public String toString() {
-			return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-		}
-		
-	}
-	
 }

@@ -17,6 +17,7 @@ public class MD {
 	private static final String COLUMN_CHECKSUM = System.getProperty("vodafonecanvass.md.column.checksum", "H");
 
 	private static final int SOFTWARES_START_ROW = Integer.getInteger("vodafonecanvass.md.softwares.startRow", 9);
+	private static final LocalTime MIDNIGHT = new LocalTime(0, 0, 0, 0);
 
 	private final File mdTemplate;
 	private final String sgst;
@@ -44,7 +45,7 @@ public class MD {
 		File file = new File(outputDirectory, NamingRules.standardFileName(mdTemplate.getName(), system, version, date));
 		
 		Excel excel = new Excel(mdTemplate);
-		excel.setCellByName("date", date.toLocalDateTime(new LocalTime(0, 0, 0, 0)));
+		excel.setCellByName("date", date.toLocalDateTime(MIDNIGHT));
 		
 		int count = 0;
 		for (File software : softwares) {
