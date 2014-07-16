@@ -1,4 +1,4 @@
-package com.github.sixro.util;
+package com.github.sixro.vodafoneitalymavenplugin.util;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import com.github.sixro.util.Checksum.Cksum;
+import com.github.sixro.vodafoneitalymavenplugin.util.Checksum.Cksum;
 
 public class CksumTest {
 

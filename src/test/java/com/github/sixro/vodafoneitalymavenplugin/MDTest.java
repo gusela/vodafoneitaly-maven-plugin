@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import static org.junit.Assert.*;
 
@@ -8,7 +8,8 @@ import org.apache.commons.io.FileUtils;
 import org.joda.time.*;
 import org.junit.*;
 
-import com.github.sixro.util.Excel;
+import com.github.sixro.vodafoneitalymavenplugin.MD;
+import com.github.sixro.vodafoneitalymavenplugin.util.Excel;
 
 public class MDTest {
 

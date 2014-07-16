@@ -1,12 +1,12 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import java.io.*;
 import java.util.*;
 
 import org.joda.time.*;
 
-import com.github.sixro.util.*;
-import com.github.sixro.util.Checksum.Cksum;
+import com.github.sixro.vodafoneitalymavenplugin.util.Checksum.Cksum;
+import com.github.sixro.vodafoneitalymavenplugin.util.*;
 
 public class MD {
 

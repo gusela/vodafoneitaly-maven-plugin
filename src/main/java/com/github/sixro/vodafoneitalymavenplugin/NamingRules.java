@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.LocalDate;

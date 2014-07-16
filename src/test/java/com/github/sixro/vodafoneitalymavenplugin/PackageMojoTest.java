@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import static org.junit.Assert.*;
 
@@ -9,6 +9,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.*;
 import org.joda.time.LocalDate;
 import org.junit.*;
+
+import com.github.sixro.vodafoneitalymavenplugin.PackageMojo;
 
 public class PackageMojoTest {
 

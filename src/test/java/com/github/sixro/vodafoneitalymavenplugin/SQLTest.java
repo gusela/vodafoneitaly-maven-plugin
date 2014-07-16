@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,8 @@ import org.apache.commons.io.IOUtils;
 import org.javatuples.Pair;
 import org.joda.time.LocalDate;
 import org.junit.*;
+
+import com.github.sixro.vodafoneitalymavenplugin.SQL;
 
 public class SQLTest {
 
