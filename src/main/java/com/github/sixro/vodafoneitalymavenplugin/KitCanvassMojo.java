@@ -16,12 +16,12 @@ import com.github.sixro.vodafoneitalymavenplugin.util.Checksum.MD5;
 import com.github.sixro.vodafoneitalymavenplugin.util.*;
 
 /**
- * Goal which touches a timestamp file.
+ * Goal which generate a kit for canvass.
  * 
- * @goal package
- * @phase install
+ * @goal kitcanvass
+ * @phase package
  */
-public class PackageMojo extends AbstractMojo {
+public class KitCanvassMojo extends AbstractMojo {
 
 	/**
 	 * @parameter default-value="${project}"
