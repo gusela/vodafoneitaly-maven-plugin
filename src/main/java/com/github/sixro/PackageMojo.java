@@ -195,12 +195,11 @@ public class PackageMojo extends AbstractMojo {
 				word.save(outputFile);
 			} else if (extension.equalsIgnoreCase("sql")) {
 				SQL sql = new SQL(file);
+				sql.updateFirstRowAsRequiredByDBA();
 				sql.save(outputFile);
 			} else {
 				FileUtils.copyFile(file, outputFile);
 			}
-			
-			// FIXME SQL files need a special header
 		}
 	}
 
