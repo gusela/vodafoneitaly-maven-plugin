@@ -80,18 +80,6 @@ public class PackageMojo extends AbstractMojo {
 	private File kitDirectory;
 	
 	/**
-	 * Release notes template.
-	 * 
-	 * <p>
-	 * It is a word document where some parts has to be changed. E.g. version,
-	 * system the list of files released, etc...
-	 * </p>
-	 * 
-	 * @parameter expression="${vodafonecanvass.releasenotes.template}" default-value="src/main/templates/RN.docx"
-	 */
-	private File releaseNotesTemplate;
-	
-	/**
 	 * SQ template.
 	 * 
 	 * @parameter expression="${vodafonecanvass.sq.template}" default-value="src/main/templates/SQ.xls"
@@ -121,7 +109,6 @@ public class PackageMojo extends AbstractMojo {
 
 	public void execute() throws MojoExecutionException {
 		getLog().info("Packaging for Vodafone Canvass");
-		getLog().info("  Release Notes Template .......: " + releaseNotesTemplate);
 		getLog().info("  Kit directory ................: " + kitDirectory);
 		getLog().info("  Output directory .............: " + outputDirectory);
 
