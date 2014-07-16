@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import java.io.*;
 import java.util.*;
@@ -7,7 +7,7 @@ import org.apache.commons.io.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
 
-import com.github.sixro.util.Excel;
+import com.github.sixro.vodafoneitalymavenplugin.util.Excel;
 
 public class SQ {
 

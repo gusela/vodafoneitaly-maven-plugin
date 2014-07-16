@@ -1,4 +1,4 @@
-package com.github.sixro.util;
+package com.github.sixro.vodafoneitalymavenplugin.util;
 
 import java.io.*;
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package com.github.sixro;
+package com.github.sixro.vodafoneitalymavenplugin;
 
 import java.io.*;
 import java.util.*;
@@ -12,8 +12,8 @@ import org.javatuples.Pair;
 import org.joda.time.LocalDate;
 import org.joda.time.format.*;
 
-import com.github.sixro.util.Checksum.MD5;
-import com.github.sixro.util.*;
+import com.github.sixro.vodafoneitalymavenplugin.util.Checksum.MD5;
+import com.github.sixro.vodafoneitalymavenplugin.util.*;
 
 /**
  * Goal which touches a timestamp file.

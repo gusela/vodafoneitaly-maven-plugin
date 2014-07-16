@@ -1,4 +1,4 @@
-package com.github.sixro.util;
+package com.github.sixro.vodafoneitalymavenplugin.util;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,8 @@ import java.io.*;
 
 import org.joda.time.LocalDateTime;
 import org.junit.*;
+
+import com.github.sixro.vodafoneitalymavenplugin.util.Excel;
 
 public class ExcelTest {
 
