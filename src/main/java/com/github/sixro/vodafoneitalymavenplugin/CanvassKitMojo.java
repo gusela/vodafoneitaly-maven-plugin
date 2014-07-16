@@ -6,7 +6,6 @@ import java.util.zip.*;
 
 import org.apache.commons.io.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.plugin.*;
 import org.apache.maven.project.MavenProject;
 import org.javatuples.Pair;
@@ -19,10 +18,10 @@ import com.github.sixro.vodafoneitalymavenplugin.util.*;
 /**
  * Goal which generate a kit for canvass.
  * 
- * @goal kitcanvass
+ * @goal canvass-kit
  * @phase package
  */
-public class KitCanvassMojo extends AbstractMojo {
+public class CanvassKitMojo extends AbstractMojo {
 
 	/**
 	 * @parameter default-value="${project}"
@@ -37,7 +36,7 @@ public class KitCanvassMojo extends AbstractMojo {
 	 * Here we need this information in order to generate MD document where SG/ST appear as the first column of each file.
 	 * </p>
 	 * 
-	 * @parameter expression="${vodafonecanvass.sgst}"
+	 * @parameter expression="${vodafoneitaly.canvass.sgst}"
 	 * @required
 	 */
 	private String sgst;
@@ -45,7 +44,7 @@ public class KitCanvassMojo extends AbstractMojo {
 	/**
 	 * The system.
 	 * 
-	 * @parameter expression="${vodafonecanvass.system}"
+	 * @parameter expression="${vodafoneitaly.canvass.system}"
 	 * @required
 	 */
 	private String system;
@@ -53,7 +52,7 @@ public class KitCanvassMojo extends AbstractMojo {
 	/**
 	 * The version.
 	 * 
-	 * @parameter expression="${vodafonecanvass.version}"
+	 * @parameter expression="${vodafoneitaly.canvass.version}"
 	 * @required
 	 */
 	private String version;
@@ -61,7 +60,7 @@ public class KitCanvassMojo extends AbstractMojo {
 	/**
 	 * The canvass date in format {@code yyyyMMdd}.
 	 * 
-	 * @parameter expression="${vodafonecanvass.date}"
+	 * @parameter expression="${vodafoneitaly.canvass.date}"
 	 * @required
 	 */
 	private String date;
@@ -69,7 +68,7 @@ public class KitCanvassMojo extends AbstractMojo {
 	/**
 	 * The release phase (e.g. CutOff, Eccezione1, Eccezione2, etc...).
 	 * 
-	 * @parameter expression="${vodafonecanvass.releasePhase}"
+	 * @parameter expression="${vodafoneitaly.canvass.releasePhase}"
 	 * @required
 	 */
 	private String releasePhase;
@@ -77,86 +76,102 @@ public class KitCanvassMojo extends AbstractMojo {
 	/**
 	 * Location of the directory of the kit.
 	 * 
-	 * @parameter expression="${vodafonecanvass.kit.directory}" default-value="src/main/kit"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.sourceDirectory}" default-value="src/main/kit"
 	 */
 	private File kitDirectory;
 	
+	// FIXME portarsi dietro i template di default
 	/**
 	 * SQ template.
 	 * 
-	 * @parameter expression="${vodafonecanvass.sq.template}" default-value="src/main/templates/SQ.xls"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.sq.template}" default-value="src/main/templates/SQ.xls"
 	 */
 	private File sqTemplate;
 	
 	/**
 	 * Docs sub-directory.
 	 * 
-	 * @parameter expression="${vodafonecanvass.docs.subdirectory}" default-value="KitForOperations/${vodafonecanvass.system}/DOCS/Delivery"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.docsSubdirectory}" default-value="KitForOperations/${vodafoneitaly.canvass.system}/DOCS/Delivery"
 	 */
 	private String docsSubdirectory;
 
 	/**
 	 * MD template.
 	 * 
-	 * @parameter expression="${vodafonecanvass.md.template}" default-value="src/main/templates/MD.xls"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.md.template}" default-value="src/main/templates/MD.xls"
 	 */
 	private File mdTemplate;
 
 	/**
 	 * Softwares sub-directory.
 	 * 
-	 * @parameter expression="${vodafonecanvass.softwares.subdirectory}" default-value="KitForOperations/${vodafonecanvass.system}/SOFTWARE"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.softwaresSubdirectory}" default-value="KitForOperations/${vodafoneitaly.canvass.system}/SOFTWARE"
 	 */
 	private String softwaresSubdirectory;
 
 	/**
 	 * Location of the working directory where the kit is assembled.
 	 * 
-	 * @parameter expression="${vodafonecanvass.working.directory}" default-value="${project.build.directory}/vodafoneitaly/kitcanvass-exploded"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.workingDirectory}" default-value="${project.build.directory}/vodafoneitaly/canvass-kit-exploded"
 	 */
 	private File workingDirectory;
 
 	/**
 	 * Location of the outputdirectory.
 	 * 
-	 * @parameter expression="${vodafonecanvass.output.directory}" default-value="${project.build.directory}/vodafoneitaly/kitcanvass"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.outputDirectory}" default-value="${project.build.directory}/vodafoneitaly/canvass-kit"
 	 */
 	private File outputDirectory;
 
+	/**
+	 * Target filename.
+	 * 
+	 * @parameter expression="${vodafoneitaly.canvass.kit.targetFileName}" default-value="${project.build.finalName}.zip"
+	 */
+	private String targetFileName;
+
 	public void execute() throws MojoExecutionException {
+		Properties projectProperties = mavenProject.getProperties();
+		fillPropertiesWithThatOfPlugin(projectProperties);
+		printProperties(projectProperties);
+		
 		createDirectory(workingDirectory);
 		createDirectory(outputDirectory);
 
-		Properties enhancedProperties = enhanceProjectProperties();
-		
+		File docsDirectory = new File(workingDirectory, projectProperties.getProperty("vodafoneitaly.canvass.kit.docsSubdirectory"));
+		createDirectory(docsDirectory);
+		getLog().info("    " + StringUtils.rightPad("docsDirectory ", 50, '.') + ": " + docsDirectory);
+
+		File softwaresDirectory = new File(kitDirectory, projectProperties.getProperty("vodafoneitaly.canvass.kit.softwaresSubdirectory"));
+		createDirectory(softwaresDirectory);
+		getLog().info("    " + StringUtils.rightPad("softwaresDirectory ", 50, '.') + ": " + softwaresDirectory);
+
 		DateTimeFormatter parser = DateTimeFormat.forPattern("yyyyMMdd");
 		LocalDate localDate = LocalDate.parse(date, parser);
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+		projectProperties.setProperty("vodafoneitaly.canvass.dateIso", formatter.print(localDate));
 		
-		String realDocsSubdirectory = StrSubstitutor.replace(docsSubdirectory, enhancedProperties);
-		File docsOutputDirectory = new File(workingDirectory, realDocsSubdirectory);
-		createDirectory(docsOutputDirectory);
-
-		String realSoftwaresSubdirectory = StrSubstitutor.replace(softwaresSubdirectory, enhancedProperties);
-		File softwaresDirectory = new File(kitDirectory, realSoftwaresSubdirectory);
-
 		try {
-			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
-			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
-			copyAllKitFiles(kitDirectory, workingDirectory, system, version, localDate, enhancedProperties);
+			generateAllSQ(kitDirectory, docsDirectory, sqTemplate, version, localDate);
+			generateMD(softwaresDirectory, docsDirectory, mdTemplate, sgst, system, version, localDate);
+			copyAllKitFiles(kitDirectory, workingDirectory, system, version, localDate, projectProperties);
 			createMD5(workingDirectory, system, version, localDate, releasePhase);
 			
-			File kitFile = new File(outputDirectory, "Kit" + releasePhase + ".zip");
-			compressAllFiles(workingDirectory, kitFile);
+			File targetFile = new File(outputDirectory, targetFileName);
+			projectProperties.setProperty("vodafoneitaly.canvass.kit.targetFile", targetFile.getPath());
+			compressAllFiles(workingDirectory, targetFile);
 			
-			getLog().info("created kit: " + kitFile);
+			getLog().info("created kit: " + targetFile);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
 	}
 
-	private void createDirectory(File dir) {
-		if (!dir.exists())
-			dir.mkdirs();
+	private void printProperties(Properties projectProperties) {
+		List<String> propertyNames = new LinkedList<String>(projectProperties.stringPropertyNames());
+		Collections.sort(propertyNames);
+		for (String propertyName : propertyNames)
+			getLog().debug("    " + StringUtils.rightPad(propertyName + ' ', 50, '.') + ": " + projectProperties.getProperty(propertyName));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -271,13 +286,31 @@ public class KitCanvassMojo extends AbstractMojo {
 		return ! StringUtils.containsAny(baseName, "0123456789");
 	}
 
-	private Properties enhanceProjectProperties() {
-		Properties properties = mavenProject.getProperties();
-		Properties enhancedProperties = new Properties(properties);
-		enhancedProperties.setProperty("vodafonecanvass.system", system);
-		enhancedProperties.setProperty("vodafonecanvass.version", version);
-		enhancedProperties.setProperty("vodafonecanvass.date", date);
-		return enhancedProperties;
+	private void fillPropertiesWithThatOfPlugin(Properties properties) {
+		addIfNotFound(properties, "vodafoneitaly.canvass.sgst",                      sgst);
+		addIfNotFound(properties, "vodafoneitaly.canvass.system",                    system);
+		addIfNotFound(properties, "vodafoneitaly.canvass.version",                   version);
+		addIfNotFound(properties, "vodafoneitaly.canvass.date",                      date);
+		addIfNotFound(properties, "vodafoneitaly.canvass.releasePhase",              releasePhase);
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.sourceDirectory",       kitDirectory.getPath());
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.sq.template",           sqTemplate.getPath());
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.docsSubdirectory",      docsSubdirectory);
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.md.template",           mdTemplate.getPath());
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.softwaresSubdirectory", softwaresSubdirectory);
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.workingDirectory",      workingDirectory.getPath());
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.outputDirectory",       outputDirectory.getPath());
+		addIfNotFound(properties, "vodafoneitaly.canvass.kit.targetFileName",        targetFileName);
+	}
+
+	private void addIfNotFound(Properties properties, String propertyName, String propertyValue) {
+		String value = properties.getProperty(propertyName);
+		if (value == null)
+			properties.setProperty(propertyName, propertyValue);
+	}
+
+	private void createDirectory(File dir) {
+		if (!dir.exists())
+			dir.mkdirs();
 	}
 
 }
