@@ -30,4 +30,19 @@ public class NamingRules {
 		return standardFileName(unversionedFileName, system, version, dateAsText);
 	}
 
+	public static String md5filename(String system, String version, LocalDate date, String releasePhase) {
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+		String dateAsText = formatter.print(date);
+		return new StringBuilder("CS-")
+			.append(system)
+			.append("_Kit")
+			.append(releasePhase)
+			.append('-')
+			.append(dateAsText)
+			.append("-v.")
+			.append(version)
+			.append(".md5")
+			.toString();
+	}
+
 }

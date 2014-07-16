@@ -14,6 +14,7 @@ import org.joda.time.*;
 import org.joda.time.format.*;
 
 import com.github.sixro.util.*;
+import com.github.sixro.util.Checksum.MD5;
 
 /**
  * Goal which touches a timestamp file.
@@ -64,6 +65,14 @@ public class PackageMojo extends AbstractMojo {
 	 * @required
 	 */
 	private String date;
+
+	/**
+	 * The release phase (e.g. CutOff, Eccezione1, Eccezione2, etc...).
+	 * 
+	 * @parameter expression="${vodafonecanvass.releasePhase}"
+	 * @required
+	 */
+	private String releasePhase;
 
 	/**
 	 * Location of the output directory.
@@ -132,6 +141,7 @@ public class PackageMojo extends AbstractMojo {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
 			copyAllKitFiles(kitDirectory, outputDirectory, system, version, localDate, enhancedProperties);
+			createMD5(outputDirectory, system, version, localDate, releasePhase);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
@@ -188,6 +198,33 @@ public class PackageMojo extends AbstractMojo {
 				FileUtils.copyFile(file, outputFile);
 			}
 		}
+	}
+
+	/**
+	 * Create an MD5 file reading all files in specified directory and putting MD5 in the same specified dir.
+	 * @param directory directory
+	 * @return an MD5 file
+	 * @throws IOException 
+	 */
+	protected File createMD5(File directory, String system, String version, LocalDate date, String releasePhase) throws IOException {
+		File md5file = new File(directory, NamingRules.md5filename(system, version, date, releasePhase));
+		createMD5(directory, md5file);
+		return md5file;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected void createMD5(File directory, File md5File) throws IOException {
+		Collection<File> files = FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+		PrintWriter writer = new PrintWriter(md5File);
+		for (File file : files) {
+			String md5checksum = MD5.valueOf(file);
+			String line = new StringBuilder(md5checksum)
+				.append(' ')
+				.append(ExtendedFileUtils.getRelativePath(file, directory))
+				.toString();
+			writer.println(line);
+		}
+		writer.close();
 	}
 
 	protected boolean hasToBeRenamed(File file) {

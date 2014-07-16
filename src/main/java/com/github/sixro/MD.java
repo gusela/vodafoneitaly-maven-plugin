@@ -6,6 +6,7 @@ import java.util.*;
 import org.joda.time.*;
 
 import com.github.sixro.util.*;
+import com.github.sixro.util.Checksum.Cksum;
 
 public class MD {
 
@@ -55,7 +56,7 @@ public class MD {
 			excel.setCellByRef(COLUMN_MODULE + row, softwareFilename);
 			String softwareExtension = softwareFilename.substring(softwareFilename.lastIndexOf('.') +1);
 			excel.setCellByRef(COLUMN_TYPE + row, softwareExtension);
-			excel.setCellByRef(COLUMN_CHECKSUM + row, Checksum.valueOf(software));
+			excel.setCellByRef(COLUMN_CHECKSUM + row, Cksum.valueOf(software));
 			
 			count++;
 		}
