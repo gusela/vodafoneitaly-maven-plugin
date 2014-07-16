@@ -138,25 +138,6 @@
 
 			<plugin>
 				<groupId>com.github.github</groupId>
-				<artifactId>downloads-maven-plugin</artifactId>
-				<version>0.5</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>upload</goal>
-						</goals>
-						<phase>install</phase>
-						<configuration>
-							<description>${project.version} release of ${project.name}</description>
-							<override>true</override>
-							<includeAttached>true</includeAttached>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
 				<version>0.9</version>
 				<configuration>
