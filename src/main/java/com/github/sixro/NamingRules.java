@@ -1,5 +1,6 @@
 package com.github.sixro;
 
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.*;
 
@@ -8,30 +9,25 @@ public class NamingRules {
 	private NamingRules() { }
 	
 	public static String standardFileName(String unversionedFileName, String system, String version, String date) {
-		int dotIndex = unversionedFileName.lastIndexOf('.');
-		return new StringBuilder(unversionedFileName.substring(0, dotIndex))
-			.append('-')
-			.append(system)
+		String basename = FilenameUtils.getBaseName(unversionedFileName);
+		int underscoreIndex = basename.indexOf('_');
+		String prefix = (underscoreIndex < 0)
+				? basename + '-' + system
+				: basename.substring(0, underscoreIndex) + '-' + system + basename.substring(underscoreIndex);
+		return new StringBuilder(prefix)
 			.append("-V")
 			.append(version)
 			.append('-')
 			.append(date)
-			.append(unversionedFileName.substring(dotIndex))
+			.append('.')
+			.append(FilenameUtils.getExtension(unversionedFileName))
 			.toString();
 	}
 
 	public static String standardFileName(String unversionedFileName, String system, String version, LocalDate date) {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-		int dotIndex = unversionedFileName.lastIndexOf('.');
-		return new StringBuilder(unversionedFileName.substring(0, dotIndex))
-			.append('-')
-			.append(system)
-			.append("-V")
-			.append(version)
-			.append('-')
-			.append(formatter.print(date))
-			.append(unversionedFileName.substring(dotIndex))
-			.toString();
+		String dateAsText = formatter.print(date);
+		return standardFileName(unversionedFileName, system, version, dateAsText);
 	}
 
 }
