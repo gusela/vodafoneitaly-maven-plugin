@@ -3,7 +3,7 @@
 
 	<groupId>com.github.sixro</groupId>
 	<artifactId>vodafoneitaly-maven-plugin</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>Vodafone Italy Maven Plugin</name>
@@ -201,7 +201,7 @@
 		<connection>scm:git:ssh://github.com/sixro/vodafoneitaly-maven-plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/sixro/vodafoneitaly-maven-plugin.git</developerConnection>
 		<url>https://github.com/sixro/vodafoneitaly-maven-plugin</url>
-		<tag>HEAD</tag>
+		<tag>v0.3</tag>
 	</scm>
 
 	<distributionManagement>
