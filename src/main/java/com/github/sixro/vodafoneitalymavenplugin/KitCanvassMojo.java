@@ -2,6 +2,7 @@ package com.github.sixro.vodafoneitalymavenplugin;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.*;
 
 import org.apache.commons.io.*;
 import org.apache.commons.lang3.StringUtils;
@@ -74,13 +75,6 @@ public class KitCanvassMojo extends AbstractMojo {
 	private String releasePhase;
 
 	/**
-	 * Location of the output directory.
-	 * 
-	 * @parameter expression="${vodafonecanvass.output.directory}" default-value="${project.build.directory}/vodafonecanvass"
-	 */
-	private File outputDirectory;
-
-	/**
 	 * Location of the directory of the kit.
 	 * 
 	 * @parameter expression="${vodafonecanvass.kit.directory}" default-value="src/main/kit"
@@ -115,13 +109,23 @@ public class KitCanvassMojo extends AbstractMojo {
 	 */
 	private String softwaresSubdirectory;
 
-	public void execute() throws MojoExecutionException {
-		getLog().info("Packaging for Vodafone Canvass");
-		getLog().info("  Kit directory ................: " + kitDirectory);
-		getLog().info("  Output directory .............: " + outputDirectory);
+	/**
+	 * Location of the working directory where the kit is assembled.
+	 * 
+	 * @parameter expression="${vodafonecanvass.working.directory}" default-value="${project.build.directory}/vodafoneitaly/kitcanvass-exploded"
+	 */
+	private File workingDirectory;
 
-		if (!outputDirectory.exists())
-			outputDirectory.mkdirs();
+	/**
+	 * Location of the outputdirectory.
+	 * 
+	 * @parameter expression="${vodafonecanvass.output.directory}" default-value="${project.build.directory}/vodafoneitaly/kitcanvass"
+	 */
+	private File outputDirectory;
+
+	public void execute() throws MojoExecutionException {
+		createDirectory(workingDirectory);
+		createDirectory(outputDirectory);
 
 		Properties enhancedProperties = enhanceProjectProperties();
 		
@@ -129,9 +133,8 @@ public class KitCanvassMojo extends AbstractMojo {
 		LocalDate localDate = LocalDate.parse(date, parser);
 		
 		String realDocsSubdirectory = StrSubstitutor.replace(docsSubdirectory, enhancedProperties);
-		File docsOutputDirectory = new File(outputDirectory, realDocsSubdirectory);
-		if (! docsOutputDirectory.exists())
-			docsOutputDirectory.mkdirs();
+		File docsOutputDirectory = new File(workingDirectory, realDocsSubdirectory);
+		createDirectory(docsOutputDirectory);
 
 		String realSoftwaresSubdirectory = StrSubstitutor.replace(softwaresSubdirectory, enhancedProperties);
 		File softwaresDirectory = new File(kitDirectory, realSoftwaresSubdirectory);
@@ -139,11 +142,21 @@ public class KitCanvassMojo extends AbstractMojo {
 		try {
 			generateAllSQ(kitDirectory, docsOutputDirectory, sqTemplate, version, localDate);
 			generateMD(softwaresDirectory, docsOutputDirectory, mdTemplate, sgst, system, version, localDate);
-			copyAllKitFiles(kitDirectory, outputDirectory, system, version, localDate, enhancedProperties);
-			createMD5(outputDirectory, system, version, localDate, releasePhase);
+			copyAllKitFiles(kitDirectory, workingDirectory, system, version, localDate, enhancedProperties);
+			createMD5(workingDirectory, system, version, localDate, releasePhase);
+			
+			File kitFile = new File(outputDirectory, "Kit" + releasePhase + ".zip");
+			compressAllFiles(workingDirectory, kitFile);
+			
+			getLog().info("created kit: " + kitFile);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
 		}
+	}
+
+	private void createDirectory(File dir) {
+		if (!dir.exists())
+			dir.mkdirs();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -192,8 +205,7 @@ public class KitCanvassMojo extends AbstractMojo {
 				outputFile = new File(outputFile.getParentFile(), NamingRules.standardFileName(filename, system, version, date));
 			
 			File outputFileDirectory = outputFile.getParentFile();
-			if (! outputFileDirectory.exists())
-				outputFileDirectory.mkdirs();
+			createDirectory(outputFileDirectory);
 			
 			if (extension.equalsIgnoreCase("docx")) {
 				Word word = new Word(file);
@@ -234,6 +246,24 @@ public class KitCanvassMojo extends AbstractMojo {
 			writer.println(line);
 		}
 		writer.close();
+	}
+
+	protected void compressAllFiles(File directory, File zipFile) throws IOException {
+		ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+		zip.setMethod(ZipOutputStream.DEFLATED);
+		Collection<File> files = ExtendedFileUtils.listFilesRecursive(directory);
+		for (File file : files) {
+			ZipEntry zipEntry = new ZipEntry(ExtendedFileUtils.getRelativePath(file, directory));
+			zip.putNextEntry(zipEntry);
+
+			FileInputStream fileIn = new FileInputStream(file);
+			IOUtils.copy(fileIn, zip);
+			fileIn.close();
+			
+			zip.closeEntry();
+		}
+
+		zip.close();
 	}
 
 	protected boolean hasToBeRenamed(File file) {
