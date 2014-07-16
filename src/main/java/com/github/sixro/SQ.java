@@ -3,7 +3,7 @@ package com.github.sixro;
 import java.io.*;
 import java.util.*;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
 
@@ -11,12 +11,6 @@ import com.github.sixro.util.Excel;
 
 public class SQ {
 
-	private static final String METADATA_AUTHOR = "AUTHOR";
-	private static final String METADATA_SGST = "SG/ST";
-	private static final String METADATA_VERSION = "VERSION";
-	private static final String METADATA_DESCRIPTION = "DESCRIPTION";
-	private static final String METADATA_SCHEMA = "SCHEMA";
-	
 	private static final String COLUMN_SGST = System.getProperty("vodafonecanvass.sq.column.sgst", "C");
 	private static final String COLUMN_DATABASE = System.getProperty("vodafonecanvass.sq.column.database", "D");
 	private static final String COLUMN_SCRIPT_NAME = System.getProperty("vodafonecanvass.sq.column.scriptName", "E");
@@ -42,7 +36,7 @@ public class SQ {
 	private final String version;
 	private final LocalDate date;
 	
-	private final List<File> sqls;
+	private final List<SQL> sqls;
 
 	public SQ(File template, String system, String database, String version, LocalDate date) {
 		super();
@@ -52,11 +46,11 @@ public class SQ {
 		this.version = version;
 		this.date = date;
 
-		this.sqls = new LinkedList<File>();
+		this.sqls = new LinkedList<SQL>();
 	}
 
-	public void addSQL(File file) {
-		sqls.add(file);
+	public void addSQL(SQL sql) {
+		sqls.add(sql);
 	}
 	
 	public File saveTo(File directory) throws IOException {
@@ -65,7 +59,8 @@ public class SQ {
 		Excel excel = new Excel(template);
 		excel.setCellByName("date", date.toLocalDateTime(MIDNIGHT));
 		int count = 0;
-		for (File sql : sqls) {
+		/*
+		for (File sql : files) {
 			int row = count + SCRIPTS_START_ROW;
 			excel.setCellByRef(COLUMN_SGST + row, SQ.lookupMetadata(sql, METADATA_SGST));
 			excel.setCellByRef(COLUMN_DATABASE + row, database);
@@ -96,27 +91,41 @@ public class SQ {
 			
 			count++;
 		}
+		*/
+		for (SQL sql : sqls) {
+			int row = count + SCRIPTS_START_ROW;
+			excel.setCellByRef(COLUMN_SGST + row, sql.sgst());
+			excel.setCellByRef(COLUMN_DATABASE + row, database);
+			excel.setCellByRef(COLUMN_SCRIPT_NAME + row, FilenameUtils.getBaseName(sql.getFilename()));
+
+			String version = sql.version();
+			excel.setCellByRef(COLUMN_VERSION + row, version);
+			excel.setCellByRef(COLUMN_SCRIPT_TYPE + row, TYPE_SQL);
+			excel.setCellByRef(COLUMN_SCHEMA + row, sql.schema());
+			excel.setCellByRef(COLUMN_STORAGE + row, NO_STORAGE);
+			
+			String authorMetadataValue = sql.author();
+			String author = authorMetadataValue.substring(0, authorMetadataValue.indexOf("(")).trim();
+			excel.setCellByRef(COLUMN_REFERRER + row, author);
+			
+			String descriptionMetadataValue = sql.description();
+			int durationStartIndex = descriptionMetadataValue.indexOf('[');
+			String descriptionInSQL = descriptionMetadataValue;
+			String duration = DEFAULT_DURATION;
+			if (durationStartIndex >= 0) {
+				descriptionInSQL = descriptionMetadataValue.substring(0, durationStartIndex).trim();
+				duration = descriptionMetadataValue.substring(durationStartIndex +1, descriptionMetadataValue.indexOf(']')).trim();
+			}
+			
+			excel.setCellByRef(COLUMN_DURATION + row, duration);
+			excel.setCellByRef(COLUMN_DESCRIPTION + row, descriptionInSQL);
+			
+			count++;
+		}
 		
 		excel.save(output);
 		
 		return output;
-	}
-
-	@SuppressWarnings("unchecked")
-	static String lookupMetadata(File sql, String metadata) {
-		try {
-			List<String> lines = FileUtils.readLines(sql);
-			for (String line : lines) {
-				line = line.trim();
-				if (line.isEmpty()) continue;
-				
-				if (line.startsWith(metadata))
-					return line.substring(line.indexOf(':') +1).trim();
-			}
-			return null;
-		} catch (IOException e) {
-			throw new RuntimeException("unable to metadata '" + metadata + "' in SQL " + sql, e);
-		}
 	}
 
 	private String filename() {

@@ -155,9 +155,9 @@ public class PackageMojo extends AbstractMojo {
 
 		for (SqlMetadataForSQ metadata : metadata2files.keySet()) {
 			SQ sq = new SQ(sqTemplate, metadata.system, metadata.database, version, date);
-			List<File> sqls = metadata2files.get(metadata);
-			for (File sql : sqls)
-				sq.addSQL(sql);
+			List<File> files = metadata2files.get(metadata);
+			for (File file : files)
+				sq.addSQL(new SQL(file));
 			File sqFile = sq.saveTo(outputDirectory);
 			
 			getLog().info("generated SQ file '" + sqFile + "'");

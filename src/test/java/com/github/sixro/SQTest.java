@@ -17,12 +17,15 @@ public class SQTest {
 	private static final String VERSION = "1.0.2";
 	private static final LocalDate DATE = LocalDate.parse("2014-07-21");
 	
-	private static final File BOH00029 = new File("src/test/resources/sql/BOH00029.sql");
-	private static final File BOH00030 = new File("src/test/resources/sql/BOH00030.sql");
+	private SQL BOH00029;
+	private SQL BOH00030;
 
 	private SQ sq;
 
-	@Before public void setup() {
+	@Before public void setup() throws IOException {
+		BOH00029 = new SQL(new File("src/test/resources/sql/BOH00029.sql"));
+		BOH00030 = new SQL(new File("src/test/resources/sql/BOH00030.sql"));
+
 		sq = new SQ(TEMPLATE, SYSTEM, DATABASE, VERSION, DATE);
 		sq.addSQL(BOH00029);
 		sq.addSQL(BOH00030);

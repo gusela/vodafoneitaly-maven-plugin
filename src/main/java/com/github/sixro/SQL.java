@@ -25,6 +25,10 @@ public class SQL {
 		this.lines = FileUtils.readLines(file);
 	}
 
+	public String getFilename() {
+		return file.getName();
+	}
+
 	public void save(File outputFile) throws IOException {
 		FileUtils.writeLines(outputFile, lines, "\r\n");
 	}
@@ -68,6 +72,22 @@ public class SQL {
 		return metadata(METADATA_DATABASE);
 	}
 
+	public String sgst() {
+		return metadata("SG/ST");
+	}
+
+	public String schema() {
+		return metadata("SCHEMA");
+	}
+
+	public String author() {
+		return metadata("AUTHOR");
+	}
+
+	public String description() {
+		return metadata("DESCRIPTION");
+	}
+
 	public String firstLine() {
 		return lines.get(0);
 	}
@@ -93,5 +113,5 @@ public class SQL {
 		}
 
 	}
-	
+
 }
