@@ -161,9 +161,9 @@
 							<message>Deploy of ${project.artifactId} v${project.version}</message>
 							<noJekyll>true</noJekyll>
 							<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-							<branch>refs/heads/mvn-repo</branch>
+							<branch>refs/heads/master</branch>
 							<includes><include>**/*</include></includes>
-							<repositoryName>${project.artifactId}</repositoryName>
+							<repositoryName>mvn-repo</repositoryName>
 							<repositoryOwner>sixro</repositoryOwner>
 						</configuration>
 					</execution>
@@ -224,6 +224,18 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<!--
+	<distributionManagement>
+		<repository>
+			<id>repo</id>
+			<url>https://github.com/sixro/mvn-repo/raw/master/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshot-repo</id>
+			<url>https://github.com/sixro/mvn-repo/raw/master/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	  -->
 	<distributionManagement>
 		<repository>
 			<id>internal.repo</id>
