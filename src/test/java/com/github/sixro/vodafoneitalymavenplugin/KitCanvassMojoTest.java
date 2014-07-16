@@ -10,9 +10,9 @@ import org.apache.commons.io.filefilter.*;
 import org.joda.time.LocalDate;
 import org.junit.*;
 
-import com.github.sixro.vodafoneitalymavenplugin.PackageMojo;
+import com.github.sixro.vodafoneitalymavenplugin.KitCanvassMojo;
 
-public class PackageMojoTest {
+public class KitCanvassMojoTest {
 
 	private static final File KIT_SOURCE_DIRECTORY = new File("src/test/resources/myCustomKit");
 	private static final File KIT_OUTPUT_DIRECTORY = new File("target/kit/");
@@ -22,18 +22,18 @@ public class PackageMojoTest {
 	private static final File SQ_TEMPLATE = new File("src/test/resources/SQ.xls");
 	private static final File SQLS_DIR = new File("src/test/resources/sql/");
 	private static final File SOFTWARES_DIR = new File("src/test/resources/softwares");
-	private PackageMojo packageMojo;
+	private KitCanvassMojo kitCanvassMojo;
 
 	@Before public void setup() throws IOException {
 		cleanDirectory(SQ_OUTPUT_DIR);
 		cleanDirectory(MD_OUTPUT_DIR);
 		cleanDirectory(KIT_OUTPUT_DIRECTORY);
 		
-		packageMojo = new PackageMojo();
+		kitCanvassMojo = new KitCanvassMojo();
 	}
 
 	@Test public void generateAllSQ_create_2_files_SQ_containing_information_grabbed_by_scripts_also_when_scripts_are_3() throws IOException {
-		packageMojo.generateAllSQ(SQLS_DIR, SQ_OUTPUT_DIR, SQ_TEMPLATE, "1.0.1", LocalDate.parse("2014-07-21"));
+		kitCanvassMojo.generateAllSQ(SQLS_DIR, SQ_OUTPUT_DIR, SQ_TEMPLATE, "1.0.1", LocalDate.parse("2014-07-21"));
 		
 		assertEquals(2, numberOfFiles(SQ_OUTPUT_DIR, "SQ-", ".xls"));
 		assertTrue(containsFile(SQ_OUTPUT_DIR, "SQ-Merlino_QDT-V1.0.1-20140721.xls"));
@@ -41,36 +41,36 @@ public class PackageMojoTest {
 	}
 
 	@Test public void generateMD_create_1_file_with_expected_name() throws IOException {
-		packageMojo.generateMD(SOFTWARES_DIR, MD_OUTPUT_DIR, MD_TEMPLATE, "ST11111", "Mer", "1.0.1", LocalDate.parse("2014-07-21"));
+		kitCanvassMojo.generateMD(SOFTWARES_DIR, MD_OUTPUT_DIR, MD_TEMPLATE, "ST11111", "Mer", "1.0.1", LocalDate.parse("2014-07-21"));
 		
 		assertEquals(1, numberOfFiles(MD_OUTPUT_DIR, "MD-", ".xls"));
 		assertTrue(containsFile(MD_OUTPUT_DIR, "MD-Mer-V1.0.1-20140721.xls"));
 	}
 
 	@Test public void copyAllKitFiles_create_the_same_number_of_files_in_output_directory() throws IOException {
-		packageMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
+		kitCanvassMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
 		
 		assertEquals(3, numberOfFiles(KIT_OUTPUT_DIRECTORY));
 	}
 
 	@Test public void copyAllKitFiles_copy_files_without_numbers_in_name_with_a_name_following_naming_rules() throws IOException {
-		packageMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
+		kitCanvassMojo.copyAllKitFiles(KIT_SOURCE_DIRECTORY, KIT_OUTPUT_DIRECTORY, "Mer", "1.0.2", LocalDate.parse("2014-07-21"), new Properties());
 		
 		assertTrue(containsFile(KIT_OUTPUT_DIRECTORY, "RN-Mer-V1.0.2-20140721.docx"));
 	}
 
 	@Test public void createMD5_create_a_file_containing_one_row_for_each_file_found() throws IOException {
 		File md5file = new File("target/md5file");
-		packageMojo.createMD5(KIT_SOURCE_DIRECTORY, md5file);
+		kitCanvassMojo.createMD5(KIT_SOURCE_DIRECTORY, md5file);
 		assertEquals(3, FileUtils.readLines(md5file).size());
 	}
 
 	@Test public void hasToBeRenamed_returns_false_when_input_contains_a_number() {
-		assertFalse(packageMojo.hasToBeRenamed(new File("RN-1.docx")));
+		assertFalse(kitCanvassMojo.hasToBeRenamed(new File("RN-1.docx")));
 	}
 
 	@Test public void hasToBeRenamed_returns_true_when_input_does_not_contain_a_number() {
-		assertTrue(packageMojo.hasToBeRenamed(new File("RN-.docx")));
+		assertTrue(kitCanvassMojo.hasToBeRenamed(new File("RN-.docx")));
 	}
 
 	private int numberOfFiles(File dir, String prefix, String suffix) {
