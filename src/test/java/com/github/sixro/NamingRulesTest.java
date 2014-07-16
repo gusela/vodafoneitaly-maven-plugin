@@ -12,4 +12,8 @@ public class NamingRulesTest {
 		assertEquals("HO-Merlino_IAT-V1.2.0-20140716.docx", NamingRules.standardFileName("HO_IAT.docx", "Merlino", "1.2.0", LocalDate.parse("2014-07-16")));
 	}
 
+	@Test public void md5filename_returns_expected_name() {
+		assertEquals("CS-Merlino_KitEccezione2-20140716-v.1.2.0.md5", NamingRules.md5filename("Merlino", "1.2.0", LocalDate.parse("2014-07-16"), "Eccezione2"));
+	}
+	
 }

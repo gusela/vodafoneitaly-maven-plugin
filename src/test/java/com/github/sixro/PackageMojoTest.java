@@ -57,6 +57,12 @@ public class PackageMojoTest {
 		assertTrue(containsFile(KIT_OUTPUT_DIRECTORY, "RN-Mer-V1.0.2-20140721.docx"));
 	}
 
+	@Test public void createMD5_create_a_file_containing_one_row_for_each_file_found() throws IOException {
+		File md5file = new File("target/md5file");
+		packageMojo.createMD5(KIT_SOURCE_DIRECTORY, md5file);
+		assertEquals(3, FileUtils.readLines(md5file).size());
+	}
+
 	@Test public void hasToBeRenamed_returns_false_when_input_contains_a_number() {
 		assertFalse(packageMojo.hasToBeRenamed(new File("RN-1.docx")));
 	}
