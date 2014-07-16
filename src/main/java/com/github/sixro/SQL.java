@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.*;
 
 import org.apache.commons.io.*;
+import org.javatuples.Pair;
 import org.joda.time.LocalDate;
 import org.joda.time.format.*;
 
@@ -25,10 +26,54 @@ public class SQL {
 		this.lines = FileUtils.readLines(file);
 	}
 
-	public String getFilename() {
+	public String filename() {
 		return file.getName();
 	}
 
+	public Pair<String, String> systemAndDatabase() {
+		return new Pair<String, String>(metadata("SYSTEM"), database());
+	}
+
+	public String version() {
+		try {
+			Matcher matcher = VERSION_REGEX.matcher(metadata(METADATA_VERSION));
+			return (matcher.matches()) ? matcher.group(1).trim() : null;
+		} catch (Throwable t) {
+			throw new RuntimeException("unexpected error trying to find version in SQL " + file, t);
+		}
+	}
+	
+	public LocalDate updateDate() {
+		try {
+			Matcher matcher = VERSION_REGEX.matcher(metadata(METADATA_VERSION));
+			String dateAsText = (matcher.matches()) ? matcher.group(2).trim() : null;
+			DateTimeFormatter parser = DateTimeFormat.forPattern("dd/MM/yyyy");
+			return parser.parseLocalDate(dateAsText);
+		} catch (Throwable t) {
+			throw new RuntimeException("unexpected error trying to find update date in SQL " + file, t);
+		}
+	}
+	
+	public String database() {
+		return metadata(METADATA_DATABASE);
+	}
+	
+	public String sgst() {
+		return metadata("SG/ST");
+	}
+	
+	public String schema() {
+		return metadata("SCHEMA");
+	}
+	
+	public String author() {
+		return metadata("AUTHOR");
+	}
+	
+	public String description() {
+		return metadata("DESCRIPTION");
+	}
+	
 	public void save(File outputFile) throws IOException {
 		FileUtils.writeLines(outputFile, lines, "\r\n");
 	}
@@ -46,46 +91,6 @@ public class SQL {
 			.append(" Exp $")
 			.toString();
 		lines.set(0, firstLine);
-	}
-
-	public String version() {
-		try {
-			Matcher matcher = VERSION_REGEX.matcher(metadata(METADATA_VERSION));
-			return (matcher.matches()) ? matcher.group(1).trim() : null;
-		} catch (Throwable t) {
-			throw new RuntimeException("unexpected error trying to find version in SQL " + file, t);
-		}
-	}
-
-	public LocalDate updateDate() {
-		try {
-			Matcher matcher = VERSION_REGEX.matcher(metadata(METADATA_VERSION));
-			String dateAsText = (matcher.matches()) ? matcher.group(2).trim() : null;
-			DateTimeFormatter parser = DateTimeFormat.forPattern("dd/MM/yyyy");
-			return parser.parseLocalDate(dateAsText);
-		} catch (Throwable t) {
-			throw new RuntimeException("unexpected error trying to find update date in SQL " + file, t);
-		}
-	}
-
-	public String database() {
-		return metadata(METADATA_DATABASE);
-	}
-
-	public String sgst() {
-		return metadata("SG/ST");
-	}
-
-	public String schema() {
-		return metadata("SCHEMA");
-	}
-
-	public String author() {
-		return metadata("AUTHOR");
-	}
-
-	public String description() {
-		return metadata("DESCRIPTION");
 	}
 
 	public String firstLine() {

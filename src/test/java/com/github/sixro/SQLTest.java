@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.*;
 
 import org.apache.commons.io.IOUtils;
+import org.javatuples.Pair;
 import org.joda.time.LocalDate;
 import org.junit.*;
 
@@ -58,6 +59,10 @@ public class SQLTest {
 		sql.metadata("ABRACADABRA");
 	}
 
+	@Test public void systemAndDatabase_returns_expected_pair_of_metadata() throws IOException {
+		assertEquals(new Pair<String, String>("Merlino", "QDT"), sql.systemAndDatabase());
+	}
+	
 	private boolean fileContainsCharacters(File file, String text) throws FileNotFoundException, IOException {
 		return IOUtils.toString(new FileReader(file)).contains(text);
 	}
