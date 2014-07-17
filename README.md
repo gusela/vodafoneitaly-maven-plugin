@@ -154,8 +154,8 @@ you could use a new placeholder called `javaVersion`.
 
 There are known issues with placeholders in MS Word:
 
-  # if you edit a placeholder, it is possible that it won't be replaced by the plugin. Try to select the placeholder entirely, activate a style (e.g. bold) and deactivate it
-  # if a placeholder is inside a table and it is on more than one page, it won't be replaced by the plugin. You need to change the table option that permit to broke rows between pages.
+    # if you edit a placeholder, it is possible that it won't be replaced by the plugin. Try to select the placeholder entirely, activate a style (e.g. bold) and deactivate it
+    # if a placeholder is inside a table and it is on more than one page, it won't be replaced by the plugin. You need to change the table option that permit to broke rows between pages.
 
 
 Development
