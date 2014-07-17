@@ -74,6 +74,10 @@ public class CanvassKitMojoTest {
 		assertTrue(canvassKitMojo.hasToBeRenamed(new File("RN-.docx")));
 	}
 
+	@Test public void toCamelCase_return_text_in_camel_case() {
+		assertEquals("vodafoneitalyCanvassSystem", canvassKitMojo.toCamelCase("vodafoneitaly.canvass.system"));
+	}
+	
 	private int numberOfFiles(File dir, String prefix, String suffix) {
 		return FileUtils.listFiles(dir, new AndFileFilter(new PrefixFileFilter(prefix), new SuffixFileFilter(suffix)), TrueFileFilter.INSTANCE).size();
 	}

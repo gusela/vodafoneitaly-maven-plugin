@@ -55,4 +55,15 @@ public class WordTest {
 		assertFalse(new Word(temporaryFile).containsText(placeholder));
 	}
 
+	@Test public void replace_long_texts_inside_others() throws IOException {
+		String placeholder = "vodafoneitaly.canvass";
+		assertTrue(word.containsText(placeholder));
+		
+		word.replaceText(placeholder, "Merlino");
+		word.save(temporaryFile);
+		
+		assertFalse(new Word(temporaryFile).containsText(placeholder));
+		
+	}
+	
 }
