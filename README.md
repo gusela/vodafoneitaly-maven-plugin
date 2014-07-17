@@ -142,7 +142,9 @@ and all other properties you define in specific section of your `pom`. E.g. if y
 ```xml
     ...
     <properties>
+        ...
         <java.version>1.6</java.version>
+        ...
     </properties>
     ...
 ```
@@ -156,6 +158,17 @@ There are known issues with placeholders in MS Word:
 
   * if you edit a placeholder, it is possible that it won't be replaced by the plugin. Try to select the placeholder entirely, activate a style (e.g. bold) and deactivate it
   * if a placeholder is inside a table and it is on more than one page, it won't be replaced by the plugin. You need to change the table option that permit to broke rows between pages.
+
+
+SQ Documents
+------------
+
+`SQ` documents are filled using all SQL scripts found.  
+The plugin reads all "metadata" found in the beginning of the script and use them to fullfil the excel.  
+There are some rules to follow:
+
+  * if you need to specify a `duration` (default `1 minuto`), add it at the end of the `DESCRIPTION` metadata between square parenthesis. E.g. `DESCRIPTION   : my description [1 ora]`
+  * the `version` and the `updatedDate` (used in the first row) are found in `VERSION` metadata. The more recent version has to be on the same line of the metadata and the format is `VERSION - UPDATE_DATE TEXT`
 
 
 Development
