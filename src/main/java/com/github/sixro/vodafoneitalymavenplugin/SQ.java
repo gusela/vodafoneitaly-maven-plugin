@@ -30,6 +30,13 @@ public class SQ {
 
 	private static final LocalTime MIDNIGHT = new LocalTime(0, 0, 0, 0);
 
+	private static final Comparator<SQL> BY_FILENAME = new Comparator<SQL>() {
+		@Override
+		public int compare(SQL o1, SQL o2) {
+			return o1.filename().compareTo(o2.filename());
+		}
+	};
+
 	private final File template;
 	private final String system;
 	private final String database;
@@ -59,6 +66,9 @@ public class SQ {
 		Excel excel = new Excel(template);
 		excel.setCellByName("date", date.toLocalDateTime(MIDNIGHT));
 		int count = 0;
+		
+		Collections.sort(sqls, BY_FILENAME);
+		
 		for (SQL sql : sqls) {
 			int row = count + SCRIPTS_START_ROW;
 			excel.setCellByRef(COLUMN_SGST + row, sql.sgst());

@@ -27,8 +27,8 @@ public class SQTest {
 		BOH00030 = new SQL(new File("src/test/resources/sql/BOH00030.sql"));
 
 		sq = new SQ(TEMPLATE, SYSTEM, DATABASE, VERSION, DATE);
-		sq.addSQL(BOH00029);
 		sq.addSQL(BOH00030);
+		sq.addSQL(BOH00029);
 	}
 	
 	@Test public void store_a_file_with_expected_Vodafone_name() throws IOException {
