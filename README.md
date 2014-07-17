@@ -26,7 +26,7 @@ Add this to your `pom`:
 
 then in your `properties` define plugin properties:
 
-```
+```xml
 	<vodafoneitaly.canvass.system>Merlino</vodafoneitaly.canvass.system>
 	<vodafoneitaly.canvass.version>1.0.0</vodafoneitaly.canvass.version>
 	<vodafoneitaly.canvass.date>${project.version}</vodafoneitaly.canvass.date>
@@ -37,7 +37,7 @@ then in your `properties` define plugin properties:
 As you can see, we suggest to use the `project.version` for the `vodafoneitaly.canvass.date`. To explain the reason of that look at this example.  
 Imagine you have a project with this header:
 
-```
+```xml
 <project [...]>
         <modelVersion>4.0.0</modelVersion>
 
@@ -58,7 +58,7 @@ where the `version` is `20140720` and the `vodafoneitaly.canvass.releasePhase` i
 
 Under `build` define a name with `releasePhase`:
 
-```
+```xml
     ...
     <build>
         <finalName>Kit${vodafoneitaly.canvass.releasePhase}</finalName>
