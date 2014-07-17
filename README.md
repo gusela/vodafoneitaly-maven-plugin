@@ -108,7 +108,7 @@ You should find under `target/vodafoneitaly/canvass-kit-exploded` an exploded ve
 In the exploded directory you'll find that the plugin:
 
   * has copied all SQL scripts updating line ending in DOS mode and changing the first row as required by Vodafone DBA (obsolete CVS Id)
-  * has generated all `SQ` files needed for found SQL scripts under `KitForOperations/yourSystem/DOCS/Delivery`
+  * has generated all `SQ` files needed for all SQL scripts that it found under `KitForOperations/yourSystem/DOCS/Delivery`
   * has generated `MD` file under `KitForOperations/yourSystem/DOCS/Delivery` listing all files found under `KitForOperations/yourSystem/SOFTWARE`, calculating `cksum`, etc...
   * has copied all MS Word files found in `kit` directory (recursive) updating all placeholders found in them
   * has copied all other files found in `kit` directory (recursive)
