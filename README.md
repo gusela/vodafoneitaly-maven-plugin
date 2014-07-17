@@ -168,8 +168,55 @@ The plugin reads all "metadata" found in the beginning of the script and use the
 There are some rules to follow:
 
   * if you need to specify a `duration` (default `1 minuto`), add it at the end of the `DESCRIPTION` metadata between square parenthesis. E.g. `DESCRIPTION   : my description [1 ora]`
-  * the `version` and the `updatedDate` (used in the first row) are found in `VERSION` metadata. The more recent version has to be on the same line of the metadata and the format is `VERSION - UPDATE_DATE TEXT`
+  * the `version` and the `updatedDate` (used in the first row) are found in `VERSION` metadata. The more recent version has to be on the same line of the metadata and the format is `VERSION - UPDATE_DATE TEXT`.
 
+Here an example:
+
+```sql
+REM $Id$
+
+/*****************************************************************
+****                                                          ****
+****                     PACKAGE TEMPLATE                     ****
+****                                                          ****
+******************************************************************
+
+SCRIPT NAME      : SYS00027.sql   
+
+AUTHOR           : Rossi, Mario (02 99.32.221)
+
+RESPONSIBLE      : Rossi, Mario (02 99.32.221)
+
+SG/ST            : ST11111
+  
+BUG/OTHER        : 
+  
+SYSTEM           : Sysolator
+
+MODULE           : 
+
+VERSION          : 1.7 - 04/07/2014 This is a recent version
+                   1.6 - 05/12/2013 This is an older version
+
+DESCRIPTION      : My description [3 ore]
+
+CONSTRAINT       :
+
+WARNING          :
+
+DATABASE         : SYSDB
+
+SCHEMA           : SYSSCHEMA
+         
+*****************************************************************
+*****************************************************************/
+
+set time on
+set timing on
+set echo on
+set linesize 132
+...
+```
 
 Development
 -----------
