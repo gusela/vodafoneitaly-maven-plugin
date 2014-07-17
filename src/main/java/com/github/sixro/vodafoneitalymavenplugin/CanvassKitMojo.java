@@ -82,11 +82,10 @@ public class CanvassKitMojo extends AbstractMojo {
 	 */
 	private File kitDirectory;
 	
-	// FIXME portarsi dietro i template di default
 	/**
 	 * SQ template.
 	 * 
-	 * @parameter expression="${vodafoneitaly.canvass.kit.sq.template}" default-value="src/main/templates/SQ.xls"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.sq.template}"
 	 */
 	private File sqTemplate;
 	
@@ -100,7 +99,7 @@ public class CanvassKitMojo extends AbstractMojo {
 	/**
 	 * MD template.
 	 * 
-	 * @parameter expression="${vodafoneitaly.canvass.kit.md.template}" default-value="src/main/templates/MD.xls"
+	 * @parameter expression="${vodafoneitaly.canvass.kit.md.template}"
 	 */
 	private File mdTemplate;
 
@@ -155,6 +154,11 @@ public class CanvassKitMojo extends AbstractMojo {
 		createDirectory(docsDirectory);
 		createDirectory(softwaresDirectory);
 
+		if (sqTemplate == null)
+			sqTemplate = useInternalTemplate("SQ.xls", "/template/SQ.xls");
+		if (mdTemplate == null)
+			mdTemplate = useInternalTemplate("MD.xls", "/template/MD.xls");
+			
 		try {
 			List<File> sqFiles = generateAllSQ(kitDirectory, docsDirectory, sqTemplate, version, localDate);
 			File mdFile = generateMD(softwaresDirectory, docsDirectory, mdTemplate, sgst, system, version, localDate);
@@ -175,6 +179,25 @@ public class CanvassKitMojo extends AbstractMojo {
 			getLog().info("created kit: " + targetFile);
 		} catch (IOException e) {
 			throw new RuntimeException("unable to create kit", e);
+		}
+	}
+
+	private File useInternalTemplate(String temporaryName, String templateClasspath) {
+		InputStream is = null;
+		try {
+			File internalSQ = new File(SystemUtils.JAVA_IO_TMPDIR, temporaryName);
+			if (internalSQ.exists())
+				internalSQ.delete();
+			
+			FileOutputStream os = new FileOutputStream(internalSQ);
+			is = CanvassKitMojo.class.getResourceAsStream(templateClasspath);
+			IOUtils.copy(is, os);
+			os.close();
+			return internalSQ;
+		} catch (IOException e) {
+			throw new RuntimeException("unable to use internal template '" + templateClasspath + "'", e);
+		} finally {
+			IOUtils.closeQuietly(is);
 		}
 	}
 
@@ -387,9 +410,7 @@ public class CanvassKitMojo extends AbstractMojo {
 		addIfNotFound(properties, "vodafoneitaly.canvass.date",                      date);
 		addIfNotFound(properties, "vodafoneitaly.canvass.releasePhase",              releasePhase);
 		addIfNotFound(properties, "vodafoneitaly.canvass.kit.sourceDirectory",       kitDirectory.getPath());
-		addIfNotFound(properties, "vodafoneitaly.canvass.kit.sq.template",           sqTemplate.getPath());
 		addIfNotFound(properties, "vodafoneitaly.canvass.kit.docsSubdirectory",      docsSubdirectory);
-		addIfNotFound(properties, "vodafoneitaly.canvass.kit.md.template",           mdTemplate.getPath());
 		addIfNotFound(properties, "vodafoneitaly.canvass.kit.softwaresSubdirectory", softwaresSubdirectory);
 		addIfNotFound(properties, "vodafoneitaly.canvass.kit.workingDirectory",      workingDirectory.getPath());
 		addIfNotFound(properties, "vodafoneitaly.canvass.kit.outputDirectory",       outputDirectory.getPath());

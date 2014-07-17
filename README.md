@@ -91,8 +91,6 @@ KitForOperations
 
 where `yourSystem` is the name of your system known by Vodafone and `yourDatabase1` and others are your databases for which you release SQL scripts.
 
-Create a `templates` directory under `src/main` and copy the `SQ.xls` template and the `MD.xls` template (we cannot provide them to you for security reasons).
-
 Copy softwares you need to release under `KitForOperations/yourSystem/SOFTWARE`.
 
 Copy SQL scripts you need to release under databases directory found under `KitForOperations/SCRIPT/ORACLE/`.
@@ -113,6 +111,13 @@ In the exploded directory you'll find that the plugin:
   * has copied all MS Word files found in `kit` directory (recursive) updating all placeholders found in them
   * has copied all other files found in `kit` directory (recursive)
   * has generated `md5` files
+
+### SQ and MD templates
+
+The plugin has `SQ` and `MD` templates within itself. If you need to change them, set properties:
+
+  * `vodafoneitaly.canvass.kit.sq.template`
+  * `vodafoneitaly.canvass.kit.md.template`
 
 
 Editing MS Word documents
