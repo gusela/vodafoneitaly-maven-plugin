@@ -115,6 +115,41 @@ In the exploded directory you'll find that the plugin:
   * has generated `md5` files
 
 
+Editing MS Word documents
+-------------------------
+
+### Placeholders
+
+You can use following placeholders in your MS Word documents:
+
+  * `canvassSystem`: the value of the property `vodafoneitaly.canvass.system`
+  * `canvassVersion`: the value of the property `vodafoneitaly.canvass.version` 
+  * `canvassDate`: the value of the property `vodafoneitaly.canvass.date` 
+  * `canvassIsoDate`: a version of `canvassDate` in ISO 8601 format (e.g. `2014-07-20`)
+  * `canvassSgst`: the value of the property `vodafoneitaly.canvass.sgst` 
+  * `canvassReleasePhase`: the value of the property `vodafoneitaly.canvass.releasePhase` 
+  * `canvassKitSoftwaresSubdirectory`: the subdirectory of softwares (e.g. `KitForOperations/yourSystem/SOFTWARE`)
+  * `canvassKitDocsSubdirectory`: the subdirectory of softwares (e.g. `KitForOperations/yourSystem/DOCS/Delivery`)
+  * `canvassKitTargetFile`: the target file of the kit
+  * `canvassKitTargetFileName`: the target filename of the kit
+  * `canvassKitDoc1Filename`: the name of the first document (`docx`, `doc`, `xls` and `xlsx`) filename. This represents the first column of the table found in the section "List of documents" of the `RN` (Release Notes) document. You have also `canvassKitDoc1Document` for the second column, `canvassKitDoc1Version` for the third, `canvassKitDoc1Extension` for the fourth and `canvassKitDoc1Title` for the last one. You have these properties for a maximum of 10 documents. Simply change `1` with the desired number (e.g. `canvassKitDoc10Version`).
+  * `canvassKitDocFilenames`: a comma separated list of all document filenames
+  * `canvassKitDocumentsSq1Filename`: the first `SQ` filename generated. You have a maximum of 5 `SQ` placeholders so if you need the fifth use `canvassKitDocumentsSq5Filename`
+  * `canvassKitDocumentsSqFilenames`: a comma separated list of all `SQ` filenames
+
+and all other properties you define in specific section of your `pom`. E.g. if you define a property `java.version` like here:
+
+```xml
+    ...
+    <properties>
+        <java.version>1.6</java.version>
+    </properties>
+    ...
+```
+
+you could use a new placeholder called `javaVersion`.
+
+
 Development
 -----------
 
