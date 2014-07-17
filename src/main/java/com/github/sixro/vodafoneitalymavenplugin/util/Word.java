@@ -1,11 +1,21 @@
 package com.github.sixro.vodafoneitalymavenplugin.util;
 
 import java.io.*;
-import java.util.*;
+import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
 
+/**
+ * Represents a MS Word document.
+ * 
+ * <p>
+ * This object is able to replace <i>docProperties</i> of MS Word but pay attention because this will ask to the user a confirmation to
+ * updated fields on document opening.
+ * </p>
+ * 
+ * @author <a href="mailto:me@sixro.net" >sixro</a> 
+ */
 public class Word {
 
 	private XWPFDocument word;
@@ -32,20 +42,9 @@ public class Word {
 	}
 
 	public void replaceText(String text, String replacement) {
-		List<XWPFHeader> headers = word.getHeaderList();
-		for (XWPFHeader header : headers) {
-			replaceAllInTables(header.getTables(), text, replacement);
-			replaceAll(header.getParagraphs(), text, replacement);
-		}
-
-		List<XWPFFooter> footers = word.getFooterList();
-		for (XWPFFooter footer: footers) {
-			replaceAllInTables(footer.getTables(), text, replacement);
-			replaceAll(footer.getParagraphs(), text, replacement);
-		}
-		
-		replaceAllInTables(word.getTables(), text, replacement);
-		replaceAll(word.getParagraphs(), text, replacement);
+		replaceHeader(text, replacement);
+		replaceFooter(text, replacement);
+		replaceBody(text, replacement);
 	}
 
 	public boolean containsText(String text) {
@@ -69,7 +68,7 @@ public class Word {
 			return true;
 		return containsText(word.getParagraphs(), text);
 	}
-
+	
 	public void save(File file) throws IOException {
 		FileOutputStream outpusStream = new FileOutputStream(file);
 		word.write(outpusStream);
@@ -85,6 +84,27 @@ public class Word {
 					r.setText(paragraphText, 0);
 				}
 			}
+		}
+	}
+
+	private void replaceBody(String text, String replacement) {
+		replaceAllInTables(word.getTables(), text, replacement);
+		replaceAll(word.getParagraphs(), text, replacement);
+	}
+	
+	private void replaceFooter(String text, String replacement) {
+		List<XWPFFooter> footers = word.getFooterList();
+		for (XWPFFooter footer: footers) {
+			replaceAllInTables(footer.getTables(), text, replacement);
+			replaceAll(footer.getParagraphs(), text, replacement);
+		}
+	}
+	
+	private void replaceHeader(String text, String replacement) {
+		List<XWPFHeader> headers = word.getHeaderList();
+		for (XWPFHeader header : headers) {
+			replaceAllInTables(header.getTables(), text, replacement);
+			replaceAll(header.getParagraphs(), text, replacement);
 		}
 	}
 	
