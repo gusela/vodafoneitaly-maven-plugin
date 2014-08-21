@@ -16,6 +16,7 @@ public class SQTest {
 	private static final String DATABASE = "QDT";
 	private static final String VERSION = "1.0.2";
 	private static final LocalDate DATE = LocalDate.parse("2014-07-21");
+	private static final File OUTPUT_DIR = new File("target/sq");
 	
 	private SQL BOH00029;
 	private SQL BOH00030;
@@ -23,6 +24,9 @@ public class SQTest {
 	private SQ sq;
 
 	@Before public void setup() throws IOException {
+		if (! OUTPUT_DIR.exists())
+			OUTPUT_DIR.mkdirs();
+
 		BOH00029 = new SQL(new File("src/test/resources/sql/BOH00029.sql"));
 		BOH00030 = new SQL(new File("src/test/resources/sql/BOH00030.sql"));
 
@@ -32,19 +36,19 @@ public class SQTest {
 	}
 	
 	@Test public void store_a_file_with_expected_Vodafone_name() throws IOException {
-		File sqFile = sq.saveTo(new File("target/sq"));
+		File sqFile = sq.saveTo(OUTPUT_DIR);
 		assertNotNull(sqFile);
 		assertEquals("SQ-Merlino_QDT-V1.0.2-20140721.xls", sqFile.getName());
 	}
 
 	@Test public void stored_file_contains_canvass_date() throws IOException {
-		File sqFile = sq.saveTo(new File("target/sq"));
+		File sqFile = sq.saveTo(OUTPUT_DIR);
 		
 		assertEquals(LocalDateTime.parse("2014-07-21"), new Excel(sqFile).getCellDateByName("date"));
 	}
 
 	@Test public void stored_file_contains_1_row_for_each_SQL() throws IOException {
-		File sqFile = sq.saveTo(new File("target/sq"));
+		File sqFile = sq.saveTo(OUTPUT_DIR);
 		
 		Excel excel = new Excel(sqFile);
 		assertEquals("BOH00029", excel.getCellTextByRef("E10"));
