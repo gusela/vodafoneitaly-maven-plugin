@@ -1,10 +1,27 @@
 vodafoneitaly-maven-plugin
 ==========================
 
-A Maven plugin useful to handle [Vodafone Italy](http://vodafone.it) processes.
+## Summary
 
-Usage
------
+  1. [Description](#description)
+  1. [Usage](#usage)
+    1. [SQ and MD templates](#sq_and_md_templates)
+  1. [Editing MS Word documents](#editing_ms_word_documents)
+    1. [Placeholders](#placeholders)
+    1. [Known issues](#known_issues)
+  1. [SQ Documents](#sq_documents)
+  1. [Where to get help](#where_to_get_help)
+  1. [Contribution guidelines](#contribution_guidelines)
+  1. [Contributor list](#contributor_list)
+  1. [Credits, Inspiration, Alternatives](#credits_inspiration_alternatives)
+
+## <a name="description"/>Description
+
+A Maven plugin useful to handle [Vodafone Italy](http://vodafone.it) processes.   
+Actually it is able to create a kit for Canvass.
+
+
+## <a name="usage"/>Usage
 
 Add this to your `pom`:
 
@@ -112,7 +129,7 @@ In the exploded directory you'll find that the plugin:
   * has copied all other files found in `kit` directory (recursive)
   * has generated `md5` files
 
-### SQ and MD templates
+### <a name="sq_and_md_templates"/>SQ and MD templates
 
 The plugin has `SQ` and `MD` templates within itself. If you need to change them, set properties:
 
@@ -120,10 +137,9 @@ The plugin has `SQ` and `MD` templates within itself. If you need to change them
   * `vodafoneitaly.canvass.kit.md.template`
 
 
-Editing MS Word documents
--------------------------
+## <a name="editing_ms_word_documents"/>Editing MS Word documents
 
-### Placeholders
+### <a name="placeholders"/>Placeholders
 
 You can use following placeholders in your MS Word documents:
 
@@ -157,7 +173,7 @@ and all other properties you define in specific section of your `pom`. E.g. if y
 you could use a new placeholder called `javaVersion`.
 
 
-### Known issues
+### <a name="known_issues"/>Known issues
 
 There are known issues with placeholders in MS Word:
 
@@ -165,8 +181,7 @@ There are known issues with placeholders in MS Word:
   * if a placeholder is inside a table and it is on more than one page, it won't be replaced by the plugin. You need to change the table option that permit to broke rows between pages.
 
 
-SQ Documents
-------------
+## <a name="sq_documents"/>SQ Documents
 
 `SQ` documents are filled using all SQL scripts found.  
 The plugin reads all "metadata" found in the beginning of the script and use them to fullfil the excel.  
@@ -223,9 +238,29 @@ set linesize 132
 ...
 ```
 
-Development
------------
+## <a name="where_to_get_help"/>Where to get help
+
+To get help, open an issue. In the future I hope to provide help using something
+else...
+
+## <a name="contribution_guidelines"/>Contribution guidelines
 
 To write this plugin I'm following [this manual](http://books.sonatype.com/mvnref-book/reference/writing-plugins-sect-custom-plugin.html).
-
 You can find project notes [here](http://goo.gl/usnglW).
+
+All contributions are welcome. The project uses a MIT License (as you can see
+in the root of the project).
+All you need to do is fork the project and send me a pull-request.
+Thanks!
+
+## <a name="contributor_list"/>Contributor list
+
+  * [Sixro](http://github.com/sixro)
+
+## <a name="credits_inspiration_alternatives"/>Credits, Inspiration, Alternatives
+
+The main reason I created this tool, is to create quickly kit for Vodafone Italy Canvass.   
+Besides, there are so many things to remember in order to create a valid kit that I need
+to recreate it at least twice.   
+I thought that a lot of those things was the perfect food for a computer and this is the
+result.
